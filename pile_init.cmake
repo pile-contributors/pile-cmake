@@ -84,11 +84,6 @@ endmacro ()
 # Set the version for a pile
 #
 # The list should contain major, minor and patch components.
-# 
-# A pile has a single category and multiple tags. All the
-# components of the category list are added as tags.
-# pileSetCategory("p1" "a;b;c") is thus interpreted like
-# a/b/c/p1 by a tool looking to store the piles.
 #
 # The macro defines or changes
 #		<PILE>_MAJOR_VERSION
@@ -99,6 +94,7 @@ endmacro ()
 macro    (pileSetVersion
           pile_set_version__name
           pile_set_version__value)
+		  
     string (TOUPPER 
 	    ${pile_set_version__name} 
 		pile_set_version__name_u)

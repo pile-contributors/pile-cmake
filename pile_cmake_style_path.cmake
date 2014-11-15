@@ -11,7 +11,7 @@ macro    (pileCmakeOutputPath
           pile_cmake_output_path__output
           pile_cmake_output_path__input)
 	
-	# get relative path with erspect to project path
+	# get relative path with respect to project path
 	set (pile_cmake_output_path__rel_path "")
 	pileRelativePath(
           pile_cmake_output_path__rel_path

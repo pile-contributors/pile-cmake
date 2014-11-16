@@ -149,7 +149,10 @@ macro    (pileSetMode
 	string (TOUPPER 
 	    ${pile_set_mode__name} 
 		pile_set_mode__name_u)
-		
+    string (TOLOWER
+        ${pile_set_mode__name}
+        pile_set_mode__name_l)
+
 	if ("${pile_set_mode__mode}" STREQUAL "")
 		set (${pile_set_mode__name_u}_PILE_MODE
 			"PILE")
@@ -178,10 +181,22 @@ macro    (pileSetMode
     else ()
 		message (FATAL_ERROR "${pile_set_mode__name}: Unknown pile mode - ${${pile_set_mode__name_u}_PILE_MODE}")
     endif ()
-	
-	pileDebugMessage (
-		"${pile_set_mode__name}"
-		"pile mode: ${${pile_set_mode__name_u}_PILE_MODE}")
+
+    pileDebugMessage (
+        "${pile_set_mode__name}"
+        "pile mode: ${${pile_set_mode__name_u}_PILE_MODE}")
+
+    if (${pile_set_mode__name_u}_STATIC)
+        add_library(
+            "${pile_set_mode__name_l}" STATIC
+            ${${pile_set_mode__name_u}_HEADERS}
+            ${${pile_set_mode__name_u}_SOURCES})
+    elseif (${pile_set_mode__name_u}_SHARED)
+        add_library(
+            "${pile_set_mode__name_l}" SHARED
+            ${${pile_set_mode__name_u}_HEADERS}
+            ${${pile_set_mode__name_u}_SOURCES})
+    endif ()
 		
 endmacro ()
 

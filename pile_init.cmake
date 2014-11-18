@@ -192,12 +192,14 @@ macro    (pileSetMode
             ${${pile_set_mode__name_u}_HEADERS}
             ${${pile_set_mode__name_u}_SOURCES})
     elseif (${pile_set_mode__name_u}_SHARED)
-        add_library(
-            "${pile_set_mode__name_l}" SHARED
-            ${${pile_set_mode__name_u}_HEADERS}
-            ${${pile_set_mode__name_u}_SOURCES})
+        if (NOT "${${pile_set_mode__name_u}_PILE_MODE}" STREQUAL "PILE_SHARED")
+            add_library(
+                "${pile_set_mode__name_l}" SHARED
+                ${${pile_set_mode__name_u}_HEADERS}
+                ${${pile_set_mode__name_u}_SOURCES})
+        endif ()
     endif ()
-		
+
 endmacro ()
 
 # ============================================================================

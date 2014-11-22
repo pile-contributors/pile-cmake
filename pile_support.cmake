@@ -39,28 +39,7 @@ set (PILE_SUPPORT_DEBUG ON)
 
 # ============================================================================
 
-# Show a debug message on behalf of the  pile
-# 
-# For the message to be actually printed PILE_SUPPORT_DEBUG
-# must be set to ON and <PILE>_DEBUG_MSG
-macro    (pileDebugMessage
-          pile_debug_message__name
-          pile_debug_message__message)
-		  
-	# general switch
-	if (PILE_SUPPORT_DEBUG)
-		# pile-level switch
-		string (TOUPPER ${pile_debug_message__name} pile_debug_message__name_u)
-		if    (${pile_debug_message__name_u}_DEBUG_MSG)
-			# ok, go ahead
-			message (STATUS "${pile_debug_message__name_u}: ${pile_debug_message__message}")
-		endif (${pile_debug_message__name_u}_DEBUG_MSG)
-	endif (PILE_SUPPORT_DEBUG)
-	
-endmacro ()
-
-# ============================================================================
-
+include(pile_cmake_debug)
 include(pile_init)
 include(pile_include)
 include(pile_headers)

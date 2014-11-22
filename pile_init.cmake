@@ -112,9 +112,13 @@ macro    (pileSetVersion
 	set (${pile_set_version__name_u}_VERSION_STRING
 			"${${pile_set_version__name_u}_MAJOR_VERSION}.${${pile_set_version__name_u}_MINOR_VERSION}.${${pile_set_version__name_u}_PATCH_VERSION}")
 	
+    string(TIMESTAMP
+        ${pile_set_version__name_u}_BUILD_TIME
+        UTC)
+
     pileDebugMessage (
 		"${pile_set_version__name}"
-        "version: ${${pile_set_version__name_u}_VERSION_STRING}")
+        "version: ${${pile_set_version__name_u}_VERSION_STRING} build on: ${${pile_set_version__name_u}_BUILD_TIME}")
 
 	if (pile_set_version__debug_decider)
 		string (TOLOWER
@@ -137,6 +141,9 @@ macro    (pileSetVersion
 		set (${pile_set_version__name_u}_DEBUG OFF)
 		set (${pile_set_version__name_u}_RELEASE ON)
 	endif()
+
+
+
 endmacro ()
 
 # ============================================================================
@@ -166,18 +173,22 @@ macro    (pileSetMode
         set (${pile_set_mode__name_u}_STATIC ON)
         set (${pile_set_mode__name_u}_PILE   OFF)
         set (${pile_set_mode__name_u}_SHARED OFF)
+        set (${pile_set_mode__name_u}_LIBRARY "${pile_set_mode__name_l}")
     elseif ("${${pile_set_mode__name_u}_PILE_MODE}" STREQUAL "PILE")
         set (${pile_set_mode__name_u}_STATIC OFF)
         set (${pile_set_mode__name_u}_PILE   ON)
         set (${pile_set_mode__name_u}_SHARED OFF)
+        set (${pile_set_mode__name_u}_LIBRARY )
     elseif ("${${pile_set_mode__name_u}_PILE_MODE}" STREQUAL "PILE_SHARED")
         set (${pile_set_mode__name_u}_STATIC OFF)
         set (${pile_set_mode__name_u}_PILE   OFF)
         set (${pile_set_mode__name_u}_SHARED ON)
+        set (${pile_set_mode__name_u}_LIBRARY )
     elseif ("${${pile_set_mode__name_u}_PILE_MODE}" STREQUAL "SHARED")
         set (${pile_set_mode__name_u}_STATIC OFF)
         set (${pile_set_mode__name_u}_PILE   OFF)
         set (${pile_set_mode__name_u}_SHARED ON)
+        set (${pile_set_mode__name_u}_LIBRARY "${pile_set_mode__name_l}")
     else ()
 		message (FATAL_ERROR "${pile_set_mode__name}: Unknown pile mode - ${${pile_set_mode__name_u}_PILE_MODE}")
     endif ()
@@ -188,49 +199,19 @@ macro    (pileSetMode
 
     if (${pile_set_mode__name_u}_STATIC)
         add_library(
-            "${pile_set_mode__name_l}" STATIC
+            "${${pile_set_mode__name_u}_LIBRARY}" STATIC
             ${${pile_set_mode__name_u}_HEADERS}
             ${${pile_set_mode__name_u}_SOURCES})
     elseif (${pile_set_mode__name_u}_SHARED)
         if (NOT "${${pile_set_mode__name_u}_PILE_MODE}" STREQUAL "PILE_SHARED")
             add_library(
-                "${pile_set_mode__name_l}" SHARED
+                "${${pile_set_mode__name_u}_LIBRARY}" SHARED
                 ${${pile_set_mode__name_u}_HEADERS}
                 ${${pile_set_mode__name_u}_SOURCES})
         endif ()
+        add_definitions(-D${pile_set_mode__name_u}_SHARED)
     endif ()
 
-endmacro ()
-
-# ============================================================================
-
-# Set common characteristics in one call
-#
-# See individual macros for variables and behaviour.
-macro    (pileSetCommon
-          pile_set_common__name
-          pile_set_common__version
-          pile_set_common__mode
-          pile_set_common__dependencies
-          pile_set_common__category
-          pile_set_common__tags)
-
-	pileSetDependencies(
-		"${pile_set_common__name}"
-		"${pile_set_common__dependencies}")
-	pileSetCategory(
-		"${pile_set_common__name}"
-		"${pile_set_common__category}")
-	pileSetTags(
-		"${pile_set_common__name}"
-		"${pile_set_common__tags}")
-	pileSetVersion(
-		"${pile_set_common__name}"
-		"${pile_set_common__version}")
-	pileSetMode(
-		"${pile_set_common__name}"
-		"${pile_set_common__mode}")
-	
 endmacro ()
 
 # ============================================================================
@@ -265,6 +246,12 @@ macro    (pileConfigFile
 		"${${pile_config_file__name_u}_CONFIG_FILE}")
     include_directories (${${pile_config_file__name_u}_BINARY_DIR})
 	
+    list (APPEND
+        ${pile_set_sources__name_u}_HEADERS
+        "${${pile_set_sources__name_u}_CONFIG_FILE}")
+    list (REMOVE_DUPLICATES
+        ${pile_set_sources__name_u}_HEADERS)
+
 	pileDebugMessage (
 		"${pile_config_file__name}"
 		"config file template: ${${pile_config_file__name_u}_CONFIG_FILE_IN}")
@@ -285,16 +272,16 @@ macro    (pileSetSources
 
 	string (TOUPPER 
 	    "${pile_set_sources__name}"
-		pile_config_file__name_u)
+        pile_set_sources__name_u)
 	string (TOLOWER 
 	    "${pile_set_sources__name}"
-		pile_config_file__name_l)
+        pile_set_sources__name_l)
 
-	set (pile_set_sources__hdr "${${pile_config_file__name_u}_CONFIG_FILE}")
+    set (pile_set_sources__hdr "${${pile_set_sources__name_u}_CONFIG_FILE}")
 	foreach(pile_set_sources__iter ${pile_set_sources__headers})
 		list (APPEND 
 			pile_set_sources__hdr 
-			"${${pile_config_file__name_u}_SOURCE_DIR}/${pile_set_sources__iter}")
+            "${${pile_set_sources__name_u}_SOURCE_DIR}/${pile_set_sources__iter}")
 	endforeach()
 	list (REMOVE_DUPLICATES 
 		pile_set_sources__hdr)
@@ -303,14 +290,14 @@ macro    (pileSetSources
 	foreach(pile_set_sources__iter ${pile_set_sources__sources})
 		list (APPEND 
 			pile_set_sources__src 
-			"${${pile_config_file__name_u}_SOURCE_DIR}/${pile_set_sources__iter}")
+            "${${pile_set_sources__name_u}_SOURCE_DIR}/${pile_set_sources__iter}")
 	endforeach()
 	list (REMOVE_DUPLICATES 
 		pile_set_sources__src)
 	
-	set (${pile_config_file__name_u}_HEADERS
+    set (${pile_set_sources__name_u}_HEADERS
         ${pile_set_sources__hdr})
-    set (${pile_config_file__name_u}_SOURCES
+    set (${pile_set_sources__name_u}_SOURCES
         ${pile_set_sources__src})
 	
 	pileDebugMessage (
@@ -320,6 +307,42 @@ macro    (pileSetSources
 		"${pile_set_sources__name}"
 		"headers: ${pile_set_sources__hdr}")
 
+endmacro ()
+
+# ============================================================================
+
+# Set common characteristics in one call
+#
+# See individual macros for variables and behaviour.
+macro    (pileSetCommon
+          pile_set_common__name
+          pile_set_common__version
+          pile_set_common__config
+          pile_set_common__mode
+          pile_set_common__dependencies
+          pile_set_common__category
+          pile_set_common__tags)
+
+    pileSetDependencies(
+        "${pile_set_common__name}"
+        "${pile_set_common__dependencies}")
+    pileSetCategory(
+        "${pile_set_common__name}"
+        "${pile_set_common__category}")
+    pileSetTags(
+        "${pile_set_common__name}"
+        "${pile_set_common__tags}")
+    pileSetVersion(
+        "${pile_set_common__name}"
+        "${pile_set_common__version}")
+    pileSetMode(
+        "${pile_set_common__name}"
+        "${pile_set_common__mode}")
+
+    if ("${pile_set_common__config}")
+        pileConfigFile(
+            "${pile_set_common__name}")
+    endif ()
 endmacro ()
 
 # ============================================================================

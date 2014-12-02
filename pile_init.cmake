@@ -202,12 +202,22 @@ macro    (pileSetMode
             "${${pile_set_mode__name_u}_LIBRARY}" STATIC
             ${${pile_set_mode__name_u}_HEADERS}
             ${${pile_set_mode__name_u}_SOURCES})
+        if (${pile_set_mode__name_u}_QT_MODS)
+            qt5_use_modules(
+                "${${pile_set_mode__name_u}_LIBRARY}"
+                ${${pile_set_mode__name_u}_QT_MODS})
+        endif ()
     elseif (${pile_set_mode__name_u}_SHARED)
         if (NOT "${${pile_set_mode__name_u}_PILE_MODE}" STREQUAL "PILE_SHARED")
             add_library(
                 "${${pile_set_mode__name_u}_LIBRARY}" SHARED
                 ${${pile_set_mode__name_u}_HEADERS}
                 ${${pile_set_mode__name_u}_SOURCES})
+            if (${pile_set_mode__name_u}_QT_MODS)
+                qt5_use_modules(
+                    "${${pile_set_mode__name_u}_LIBRARY}"
+                    ${${pile_set_mode__name_u}_QT_MODS})
+            endif ()
         endif ()
         add_definitions(-D${pile_set_mode__name_u}_SHARED)
     endif ()

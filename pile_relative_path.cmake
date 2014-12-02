@@ -14,6 +14,8 @@ macro    (pileRelativePath
           pile_relative_path__reference
           pile_relative_path__input)
 
+	set(pile_relative_path__result )
+	
 	# get a list from path components
 	string (REGEX REPLACE 
 		"[/\\]"
@@ -47,7 +49,7 @@ macro    (pileRelativePath
 		      pile_relative_path__reference_crt)
 		list (GET pile_relative_path__input_l ${pile_relative_path__i} 
 		      pile_relative_path__input_crt)
-			  
+
 		# if they are not the same break the loop
 		if (NOT "${pile_relative_path__reference_crt}" STREQUAL "${pile_relative_path__input_crt}")
 			set (pile_relative_path__ok OFF)

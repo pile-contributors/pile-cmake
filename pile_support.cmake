@@ -44,3 +44,5 @@ include(pile_init)
 include(pile_include)
 include(pile_headers)
 include(pile_used_by)
+include(pile_target)
+

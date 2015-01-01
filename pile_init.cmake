@@ -13,7 +13,7 @@ macro    (pileSetDependencies
     string (TOUPPER ${pile_set_dependencies__name} pile_set_dependencies__name_u)
 	
     set (${pile_set_dependencies__name_u}_DEPENDENCIES
-          ${pile_set_dependencies__dependencies})
+          ${pile_set_dependencies__dependencies} CACHE STRING "piles that current pile depends on")
 	if ( ${pile_set_dependencies__dependencies})
 		pileDebugMessage (
 			"${pile_set_dependencies__name}"
@@ -149,6 +149,63 @@ endmacro ()
 # ============================================================================
 
 # Set the mode
+macro    (pileCreateLib
+          pile_create_lib__name
+          pile_create_lib__kind)
+
+    string (TOUPPER
+        ${pile_create_lib__name}
+        pile_create_lib__name_u)
+    string (TOLOWER
+        ${pile_create_lib__name}
+        pile_create_lib__name_l)
+
+    add_library(
+        "${${pile_create_lib__name_u}_LIBRARY}" ${pile_create_lib__kind}
+        ${${pile_create_lib__name_u}_HEADERS}
+        ${${pile_create_lib__name_u}_SOURCES})
+
+    pileDebugMessage (
+        "${pile_create_lib__name}"
+        "library: ${${pile_create_lib__name_u}_LIBRARY}")
+
+    if (${pile_create_lib__name_u}_QT_MODS)
+        qt5_use_modules(
+            "${${pile_create_lib__name_u}_LIBRARY}"
+            ${${pile_create_lib__name_u}_QT_MODS})
+        pileDebugMessage (
+            "${pile_create_lib__name}"
+            "library Qt dependencies: ${${pile_create_lib__name_u}_QT_MODS}")
+    endif ()
+
+    set (pile_create_lib__libs )
+    foreach(pile_create_lib__dep_pile ${${pile_create_lib__name_u}_DEPENDENCIES})
+		string (TOUPPER
+			${pile_create_lib__dep_pile}
+			pile_create_lib__dep_pile_u)
+		pileDebugMessage (
+			"${pile_create_lib__name}"
+            "Is ${pile_create_lib__dep_pile} a library?")
+        if (${pile_create_lib__dep_pile_u}_LIBRARY)
+            list(APPEND pile_create_lib__libs ${${pile_create_lib__dep_pile_u}_LIBRARY})
+        endif ()
+    endforeach()
+
+    pileDebugMessage (
+        "${pile_create_lib__name}"
+        "library pile dependencies: ${pile_create_lib__libs}")
+
+    if (pile_create_lib__libs)
+        target_link_libraries(
+            "${${pile_create_lib__name_u}_LIBRARY}"
+            ${pile_create_lib__libs})
+    endif()
+
+endmacro ()
+
+# ============================================================================
+
+# Set the mode
 macro    (pileSetMode
           pile_set_mode__name
           pile_set_mode__mode)
@@ -192,32 +249,41 @@ macro    (pileSetMode
     else ()
 		message (FATAL_ERROR "${pile_set_mode__name}: Unknown pile mode - ${${pile_set_mode__name_u}_PILE_MODE}")
     endif ()
+    set (${pile_set_mode__name_u}_LIBRARY
+        ${${pile_set_mode__name_u}_LIBRARY}
+        CACHE INTERNAL "${${pile_set_mode__name_u}_LIBRARY} pile"
+        FORCE)
 
     pileDebugMessage (
         "${pile_set_mode__name}"
         "pile mode: ${${pile_set_mode__name_u}_PILE_MODE}")
+    pileDebugMessage (
+        "${pile_set_mode__name}"
+        "pile library: ${${pile_set_mode__name_u}_LIBRARY}")
 
     if (${pile_set_mode__name_u}_STATIC)
-        add_library(
-            "${${pile_set_mode__name_u}_LIBRARY}" STATIC
-            ${${pile_set_mode__name_u}_HEADERS}
-            ${${pile_set_mode__name_u}_SOURCES})
-        if (${pile_set_mode__name_u}_QT_MODS)
-            qt5_use_modules(
-                "${${pile_set_mode__name_u}_LIBRARY}"
-                ${${pile_set_mode__name_u}_QT_MODS})
-        endif ()
+        pileCreateLib (${pile_set_mode__name} STATIC)
+        #        add_library(
+        #            "${${pile_set_mode__name_u}_LIBRARY}" STATIC
+        #            ${${pile_set_mode__name_u}_HEADERS}
+        #            ${${pile_set_mode__name_u}_SOURCES})
+        #        if (${pile_set_mode__name_u}_QT_MODS)
+        #            qt5_use_modules(
+        #                "${${pile_set_mode__name_u}_LIBRARY}"
+        #                ${${pile_set_mode__name_u}_QT_MODS})
+        #        endif ()
     elseif (${pile_set_mode__name_u}_SHARED)
         if (NOT "${${pile_set_mode__name_u}_PILE_MODE}" STREQUAL "PILE_SHARED")
-            add_library(
-                "${${pile_set_mode__name_u}_LIBRARY}" SHARED
-                ${${pile_set_mode__name_u}_HEADERS}
-                ${${pile_set_mode__name_u}_SOURCES})
-            if (${pile_set_mode__name_u}_QT_MODS)
-                qt5_use_modules(
-                    "${${pile_set_mode__name_u}_LIBRARY}"
-                    ${${pile_set_mode__name_u}_QT_MODS})
-            endif ()
+            pileCreateLib (${pile_set_mode__name} SHARED)
+            #            add_library(
+            #                "${${pile_set_mode__name_u}_LIBRARY}" SHARED
+            #                ${${pile_set_mode__name_u}_HEADERS}
+            #                ${${pile_set_mode__name_u}_SOURCES})
+            #            if (${pile_set_mode__name_u}_QT_MODS)
+            #                qt5_use_modules(
+            #                    "${${pile_set_mode__name_u}_LIBRARY}"
+            #                    ${${pile_set_mode__name_u}_QT_MODS})
+            #            endif ()
         endif ()
         add_definitions(-D${pile_set_mode__name_u}_SHARED)
     endif ()

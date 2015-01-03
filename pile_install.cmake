@@ -1,32 +1,3 @@
-# ============================================================================
-#
-# Target Helpers
-# ==============
-#
-# This file contains support CMake script for targets.
-#
-# Usage
-# -----
-#
-# The file is included by pile_support.cmake, so all the
-# user has to do to use it is to:
-#
-#    include(pile_support)
-#
-# The purpose is to abstract away complex but repetitive statements from
-# target specific CMakeLists.txt file.
-#
-# In the target file start with
-#
-#   pileTarget( "example")
-#
-# then fill the lists mentioned in `pileTarget` macro, then en with
-#
-#   pileEndTarget( "example" "exe")
-#
-# to create an executable target.
-#
-# ============================================================================
 
 # ============================================================================
 

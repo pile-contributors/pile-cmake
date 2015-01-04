@@ -37,12 +37,17 @@ endmacro ()
 #
 # For the variables to be actually printed PILE_SUPPORT_DEBUG
 # must be ON.
+#
+# Arguments
+#     - pattern (optional): the variables are only printed if they match this pattern
+#
 macro    (pilePrintVars)
+    set (pile_print_vars__argn ${ARGN})
 
     # load optional name pattern
     set(pile_print_vars__pattern )
-    if (${ARGC} GREATER 0)
-        set(pile_print_vars__pattern ${ARGV0})
+    if (pile_print_vars__argn)
+        list(GET pile_print_vars__argn 0 pile_print_vars__pattern)
     endif()
 
     get_cmake_property(pile_print_vars__all_vars VARIABLES)

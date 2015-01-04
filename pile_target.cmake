@@ -55,6 +55,7 @@ macro    (pileTarget
 	set( ${pile_target__name_u}_RES )
 	set( ${pile_target__name_u}_LIBS )
 	set( ${pile_target__name_u}_QT_MODS )
+    set( ${pile_target__name_u}_SOURCE_DIR "${CMAKE_CURRENT_SOURCE_DIR}")
 
 	# name of the target
 	set( ${pile_target__name_u}_TARGET "${pile_target__name_l}")
@@ -68,13 +69,24 @@ endmacro ()
 # Arguments
 #     - name: the user name for the target
 #     - kind: either "exe", "shared" or "static"
+#     - copy_headers (optional): ON or COPY to copy the headers to output
+#       directory for headers (uses pileCreateCopyTargetTarget)
 #
 # The macro defines or changes
 #		<PILE>_UIS_SRC: the list of source files generated from <PILE>_UIS
 #		<PILE>_RES_SRC: the list of source files generated from <PILE>_RES
 macro    (pileEndTarget
           pile_end_target__name
-		  pile_end_target__kind)
+          pile_end_target__kind)
+    set(pile_end_target__argn ${ARGN})
+
+    set(pile_end_target__copy_headers OFF)
+    if (pile_end_target__argn)
+        list(GET pile_end_target__argn 0 pile_end_target__copy_headers)
+        if("${pile_end_target__copy_headers}" STREQUAL "COPY")
+            set(pile_end_target__copy_headers ON)
+        endif()
+    endif()
 
     string (TOUPPER "${pile_end_target__name}" pile_end_target__name_u)
     string (TOLOWER "${pile_end_target__name}" pile_end_target__name_l)
@@ -93,6 +105,23 @@ macro    (pileEndTarget
 			${${pile_end_target__name_u}_RES})
     endif ()	
 	
+    # make sure all paths are absolute
+    set (pile_end_target__temp_list )
+    if (${pile_end_target__name_u}_HEADERS)
+        foreach(pile_end_target__iter ${${pile_end_target__name_u}_HEADERS})
+            if (NOT IS_ABSOLUTE "${pile_end_target__iter}")
+                get_filename_component(
+                    pile_end_target__iter
+                    "${pile_end_target__iter}"
+                    ABSOLUTE)
+            endif()
+            list (APPEND pile_end_target__temp_list
+                "${pile_end_target__iter}")
+        endforeach()
+        set (${pile_end_target__name_u}_HEADERS
+            ${pile_end_target__temp_list})
+    endif()
+
 	# all sources used to build the target
 	set( ${pile_end_target__name_u}_ALL_SRCS
 			${${pile_end_target__name_u}_SOURCES}
@@ -142,9 +171,46 @@ macro    (pileEndTarget
 			FILES ${${pile_end_target__name_u}_HEADERS}
 			DESTINATION include
 			COMPONENT headers)
+        if (pile_end_target__copy_headers)
+            pileCreateCopyTargetTarget("${pile_end_target__name}")
+            add_dependencies(
+                "${${pile_end_target__name_u}_TARGET}"
+                "copy_${pile_end_target__name_l}_headers")
+        endif()
 	endif()
 	
+
     message (STATUS "${pile_end_target__name_u}: target created")
+
+endmacro ()
+
+# ============================================================================
+
+# Creates the target that copies headers
+#
+# Arguments
+#     - name: the user name for the target
+#     - destination (optional): where to copy; by default this is INCLUDE_OUTPUT_PATH
+#
+macro    (pileCreateCopyTargetTarget
+          pile_copy_target_target__name)
+
+    set (pile_copy_target_target__argn ${ARGN})
+
+    set(pile_copy_target_target__destination "${INCLUDE_OUTPUT_PATH}")
+    if (pile_copy_target_target__argn)
+        list(GET pile_copy_target_target__argn 0 pile_copy_target_target__destination)
+    endif()
+
+    string (TOUPPER "${pile_copy_target_target__name}" pile_copy_target_target__name_u)
+    string (TOLOWER "${pile_copy_target_target__name}" pile_copy_target_target__name_l)
+
+    pileCreateCopyTarget (
+        "copy_${pile_copy_target_target__name_l}_headers"
+        "${pile_copy_target_target__name} headers are being copied"
+        "${pile_copy_target_target__destination}"
+        "${${pile_copy_target_target__name_u}_HEADERS}"
+        "${${pile_copy_target_target__name_u}_SOURCE_DIR}")
 
 endmacro ()
 

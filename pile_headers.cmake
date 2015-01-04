@@ -1,5 +1,5 @@
 
-
+set (COPYFILES_DEBUG_MSG ON)
 # ============================================================================
 
 # creates a target to copy files
@@ -11,26 +11,23 @@ macro    (pileCreateCopyTarget
           pile_create_copy_target__target_description 
           pile_create_copy_target__destination_path 
           pile_create_copy_target__files_list)
+    set (pile_create_copy_target__argn ${ARGN})
 
-    #message (STATUS "pileCreateCopyTarget")
-    #message (STATUS "pile_create_copy_target__target_description = ${pile_create_copy_target__target_description}")
-    #message (STATUS "pile_create_copy_target__destination_path = ${pile_create_copy_target__destination_path}")
-    #message (STATUS "pile_create_copy_target__files_list = ${pile_create_copy_target__files_list}")
+    if (pile_create_copy_target__argn)
+        list(GET pile_create_copy_target__argn 0 pile_create_copy_target__base_path)
+    endif()
 
-    if (${ARGC} GREATER 4)
-		set(pile_create_copy_target__base_path ${ARG4})
-	endif()
-    pileDebugMessage (${pile_create_copy_target__target_name}
+    pileDebugMessage ("COPYFILES"
         "PILE_CREATE_COPY_TARGET: target_name = ${pile_create_copy_target__target_name}")
-    pileDebugMessage (${pile_create_copy_target__target_name}
+    pileDebugMessage ("COPYFILES"
         "PILE_CREATE_COPY_TARGET: target_description =  ${pile_create_copy_target__target_description}")
-    pileDebugMessage (${pile_create_copy_target__target_name}
+    pileDebugMessage ("COPYFILES"
         "PILE_CREATE_COPY_TARGET: destination_path =  ${pile_create_copy_target__destination_path}")
-    pileDebugMessage (${pile_create_copy_target__target_name}
+    pileDebugMessage ("COPYFILES"
         "PILE_CREATE_COPY_TARGET: files_list =  ${pile_create_copy_target__files_list}")
-    pileDebugMessage (${pile_create_copy_target__target_name}
+    pileDebugMessage ("COPYFILES"
         "PILE_CREATE_COPY_TARGET: base_path =  ${pile_create_copy_target__base_path}")
-          
+
 	if(NOT EXISTS "${pile_create_copy_target__destination_path}")
 		file(MAKE_DIRECTORY "${pile_create_copy_target__destination_path}")
 	endif()
@@ -85,8 +82,8 @@ macro    (pileCopyHeaders
         "copy_${pile_copy_headers__name_l}_headers"
         "${pile_copy_headers__pile_name_camel_case} headers are being copied"
         "${PROJECT_BINARY_DIR}/build/include/${pile_copy_headers__name_l}"
-        "${${pile_copy_headers__name_u}_HEADERS}"
-        "${${pile_copy_headers__name_u}_SOURCE_DIR}")
+        "${${pile_copy_headers__name_u}_HEADERS}")
+        #"${${pile_copy_headers__name_u}_SOURCE_DIR}")
 
 endmacro ()
 

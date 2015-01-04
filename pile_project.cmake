@@ -16,6 +16,28 @@
 # The purpose is to abstract away complex but repetitive statements from
 # project's main CMakeLists.txt file.
 #
+# By calling
+#
+#   project("NAME_UPPER" VERSION "X.T.K" LANGUAGES C CXX)
+#
+# following variables are defined by CMake >= 3.0.0):
+#
+#        PROJECT_VERSION
+#        PROJECT_VERSION_MAJOR
+#        PROJECT_VERSION_MINOR
+#        PROJECT_VERSION_PATCH
+#        PROJECT_VERSION_TWEAK
+#        PROJECT_BINARY_DIR
+#        PROJECT_NAME
+#
+#        <PROJECT-NAME>_BINARY_DIR
+#        <PROJECT-NAME>_SOURCE_DIR
+#        <PROJECT-NAME>_VERSION
+#        <PROJECT-NAME>_VERSION_MAJOR
+#        <PROJECT-NAME>_VERSION_MINOR
+#        <PROJECT-NAME>_VERSION_PATCH
+#        <PROJECT-NAME>_VERSION_TWEAK
+#
 # ============================================================================
 
 
@@ -29,7 +51,7 @@
 #
 # Arguments
 #     - name: the user name (CamelCased, with spaces) for the project
-#     - version: a list with 4 components (major;minor;patch/build;settings)
+#     - settings_version: version for the settings
 #
 # The macro defines or changes
 #		PROJECT_NAME: the name of the project (CamelCased, with spaces)
@@ -41,15 +63,14 @@
 #		<PROJECT>_SETTINGS_VERSION: the version for settings
 #		<PROJECT>_VERSION: a string in the form "1.2.3"
 macro    (pileProject
-          pile_project__name
-          pile_project__version)
+          pile_project__settings_version)
+
 
     # common name for the project
-    set( PROJECT_NAME "${pile_project__name}")
     message (STATUS "PROJECT_NAME = ${PROJECT_NAME}")
 
     # must be a string without spaces and special characters
-    string(REGEX REPLACE "[ \t]" "_" PROJECT_NAME_UNIX "${pile_project__name}")
+    string(REGEX REPLACE "[ \t]" "_" PROJECT_NAME_UNIX "${PROJECT_NAME}")
     string(TOUPPER "${PROJECT_NAME_UNIX}" PROJECT_NAME_UPPER)
     string(TOLOWER "${PROJECT_NAME_UNIX}" PROJECT_NAME_UNIX)
     message (STATUS "PROJECT_NAME_UPPER = ${PROJECT_NAME_UPPER}")
@@ -57,14 +78,14 @@ macro    (pileProject
 
     # the versions
     set(${PROJECT_NAME_UPPER}_VERSION_LIST ${pile_project__version})
-    list(GET ${PROJECT_NAME_UPPER}_VERSION_LIST 0 ${PROJECT_NAME_UPPER}_MAJOR_VERSION)
-    list(GET ${PROJECT_NAME_UPPER}_VERSION_LIST 1 ${PROJECT_NAME_UPPER}_MINOR_VERSION)
-    list(GET ${PROJECT_NAME_UPPER}_VERSION_LIST 2 ${PROJECT_NAME_UPPER}_PATCH_VERSION)
-    set(${PROJECT_NAME_UPPER}_VERSION
-        "${${PROJECT_NAME_UPPER}_MAJOR_VERSION}.${${PROJECT_NAME_UPPER}_MINOR_VERSION}.${${PROJECT_NAME_UPPER}_PATCH_VERSION}")
+    set(${PROJECT_NAME_UPPER}_MAJOR_VERSION ${PROJECT_VERSION_MAJOR})
+    set(${PROJECT_NAME_UPPER}_MINOR_VERSION ${PROJECT_VERSION_MINOR})
+    set(${PROJECT_NAME_UPPER}_PATCH_VERSION ${PROJECT_VERSION_PATCH})
+    set(${PROJECT_NAME_UPPER}_VERSION "${PROJECT_VERSION}")
 
     # when the settings change increment this number
-    list(GET ${PROJECT_NAME_UPPER}_VERSION_LIST 3 ${PROJECT_NAME_UPPER}_SETTINGS_VERSION)
+    set(${PROJECT_NAME_UPPER}_SETTINGS_VERSION "${pile_project__settings_version}")
+
     message (STATUS "${PROJECT_NAME_UPPER}_MAJOR_VERSION = ${${PROJECT_NAME_UPPER}_MAJOR_VERSION}")
     message (STATUS "${PROJECT_NAME_UPPER}_MINOR_VERSION = ${${PROJECT_NAME_UPPER}_MINOR_VERSION}")
     message (STATUS "${PROJECT_NAME_UPPER}_PATCH_VERSION = ${${PROJECT_NAME_UPPER}_PATCH_VERSION}")
@@ -78,6 +99,25 @@ macro    (pileProject
     if(POLICY CMP0043)
         cmake_policy(SET CMP0043 NEW)
     endif(POLICY CMP0043)
+
+    # Prepare proper system variables for config files
+    if (MSVC)
+        set (TARGET_COMPILER_MSVC ON)
+    else (MSVC)
+        set (TARGET_COMPILER_MSVC OFF)
+    endif (MSVC)
+
+    if (WIN32)
+      set (TARGET_SYSTEM_WIN32 ON)
+    else (WIN32)
+      set (TARGET_SYSTEM_WIN32 OFF)
+    endif (WIN32)
+
+    if (UNIX)
+      set (TARGET_SYSTEM_UNIX ON)
+    else ()
+      set (TARGET_SYSTEM_UNIX OFF)
+    endif ()
 
 endmacro ()
 
@@ -124,30 +164,20 @@ macro    (pileProjectCommon)
         "${PROJECT_BINARY_DIR}/build/bin" )
     set( EXECUTABLE_OUTPUT_PATH
         "${PROJECT_BINARY_DIR}/build/bin" )
+    file(MAKE_DIRECTORY ${EXECUTABLE_OUTPUT_PATH})
     set( LIBRARY_OUTPUT_PATH
         "${PROJECT_BINARY_DIR}/build/lib" )
+    file(MAKE_DIRECTORY ${LIBRARY_OUTPUT_PATH})
     set( INCLUDE_OUTPUT_PATH
-        "${PROJECT_BINARY_DIR}/build/include/${PROJECT_NAME}" )
+        "${PROJECT_BINARY_DIR}/build/include/${PROJECT_NAME_UNIX}" )
+    file(MAKE_DIRECTORY ${INCLUDE_OUTPUT_PATH})
 
     include_directories(
       "${PROJECT_SOURCE_DIR}"
-      "${PROJECT_BINARY_DIR}/build/include"
-    )
+      "${PROJECT_BINARY_DIR}/build/include")
 
     # Find includes in corresponding build directories
     set( CMAKE_INCLUDE_CURRENT_DIR ON)
-
-    # Prepare a proper system variable for config files
-    if (WIN32)
-      set (TARGET_SYSTEM_WIN32 ON)
-    else (WIN32)
-      set (TARGET_SYSTEM_WIN32 OFF)
-    endif (WIN32)
-    if (UNIX)
-      set (TARGET_SYSTEM_UNIX ON)
-    else ()
-      set (TARGET_SYSTEM_UNIX OFF)
-    endif ()
 
     # number of bits
     if ("${CMAKE_SYSTEM_PROCESSOR}" STREQUAL "x86")
@@ -165,6 +195,14 @@ macro    (pileProjectCommon)
 
     # Instruct CMake to run moc automatically when needed.
     set ( CMAKE_AUTOMOC ON)
+
+    if(EXISTS "${PROJECT_SOURCE_DIR}/config.h.in")
+        configure_file (
+            "${PROJECT_SOURCE_DIR}/config.h.in"
+            "${INCLUDE_OUTPUT_PATH}/config.h"
+            @ONLY
+        )
+    endif(EXISTS "${PROJECT_SOURCE_DIR}/config.h.in")
 
 endmacro ()
 

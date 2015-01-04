@@ -21,11 +21,12 @@ include (pile_cmake_style_path)
 # alter CMAKE_MODULE_PATH itself.
 macro    (pileInclude
           pile_include__name_camel_case)
-    
+    set (pile_include__argn ${ARGN})
+
 	# load optional path argument
     set(pile_include__path )
-	if (${ARGC} GREATER 1)
-		set(pile_include__path ${ARGV1})
+    if (pile_include__argn)
+        list(GET pile_include__argn 0 pile_include__path)
 	endif()
 
 	# compute upper and lover case variants

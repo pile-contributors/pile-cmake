@@ -91,6 +91,10 @@ macro    (pileProject
     message (STATUS "${PROJECT_NAME_UPPER}_PATCH_VERSION = ${${PROJECT_NAME_UPPER}_PATCH_VERSION}")
     message (STATUS "${PROJECT_NAME_UPPER}_SETTINGS_VERSION = ${${PROJECT_NAME_UPPER}_SETTINGS_VERSION}")
 
+    string(TIMESTAMP
+        ${PROJECT_NAME_UPPER}_BUILD_TIME
+        UTC)
+
     # http://www.cmake.org/cmake/help/v3.1/command/project.html#command:project
     # The top-level CMakeLists.txt file for a project must contain a literal,
     # direct call to the project() command; loading one through the include()
@@ -127,7 +131,7 @@ endmacro ()
 macro    (pileProjectCommon)
 
     set( CMAKE_DEBUG_POSTFIX  "_debug")
-    if(${CMAKE_BUILD_TYPE} STREQUAL "Debug")
+    if("${CMAKE_BUILD_TYPE}" STREQUAL "Debug")
         add_definitions( -DQT_DEBUG=1 -D${PROJECT_NAME_UPPER}_DEBUG=1 -D_DEBUG=1 )
     else()
         add_definitions( -DQT_NO_DEBUG=1 -D${PROJECT_NAME_UPPER}_NO_DEBUG=1 -D_NDEBUG=1 )

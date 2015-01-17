@@ -133,6 +133,14 @@ macro    (pileEndTarget
 	if ("${pile_end_target__kind}" STREQUAL "exe")
 		add_executable("${${pile_end_target__name_u}_TARGET}"
 			${${pile_end_target__name_u}_ALL_SRCS})
+        if (WIN32)
+            if(EXISTS "${EXECUTABLE_OUTPUT_PATH}/${${pile_end_target__name_u}_TARGET}.exe.manifest")
+            install(
+                FILES "${EXECUTABLE_OUTPUT_PATH}/${${pile_end_target__name_u}_TARGET}.exe.manifest"
+                DESTINATION bin
+                COMPONENT applications)
+            endif()
+        endif()
 	elseif ("${pile_end_target__kind}" STREQUAL "shared")
 		add_library("${${pile_end_target__name_u}_TARGET}" SHARED
 			${${pile_end_target__name_u}_ALL_SRCS})
@@ -209,8 +217,8 @@ macro    (pileCreateCopyTargetTarget
         "copy_${pile_copy_target_target__name_l}_headers"
         "${pile_copy_target_target__name} headers are being copied"
         "${pile_copy_target_target__destination}"
-        "${${pile_copy_target_target__name_u}_HEADERS}"
-        "${${pile_copy_target_target__name_u}_SOURCE_DIR}")
+        "${${pile_copy_target_target__name_u}_HEADERS}")
+        #"${${pile_copy_target_target__name_u}_SOURCE_DIR}")
 
 endmacro ()
 

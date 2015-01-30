@@ -122,6 +122,20 @@ macro    (pileEndTarget
             ${pile_end_target__temp_list})
     endif()
 
+    # remove duplicates from lists
+    if (${pile_end_target__name_u}_SOURCES)
+        list(REMOVE_DUPLICATES ${pile_end_target__name_u}_SOURCES)
+    endif()
+    if (${pile_end_target__name_u}_HEADERS)
+        list(REMOVE_DUPLICATES ${pile_end_target__name_u}_HEADERS)
+    endif()
+    if (${pile_end_target__name_u}_LIBS)
+        list(REMOVE_DUPLICATES ${pile_end_target__name_u}_LIBS)
+    endif()
+    if (${pile_end_target__name_u}_QT_MODS)
+        list(REMOVE_DUPLICATES ${pile_end_target__name_u}_QT_MODS)
+    endif()
+
 	# all sources used to build the target
 	set( ${pile_end_target__name_u}_ALL_SRCS
 			${${pile_end_target__name_u}_SOURCES}

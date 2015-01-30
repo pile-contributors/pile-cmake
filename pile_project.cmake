@@ -104,6 +104,9 @@ macro    (pileProject
         cmake_policy(SET CMP0043 NEW)
     endif(POLICY CMP0043)
 
+    # if the project has a cmake directory, allow finding modules there
+    list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
+
     # Prepare proper system variables for config files
     if (MSVC)
         set (TARGET_COMPILER_MSVC ON)
@@ -200,13 +203,14 @@ macro    (pileProjectCommon)
     # Instruct CMake to run moc automatically when needed.
     set ( CMAKE_AUTOMOC ON)
 
-    if(EXISTS "${PROJECT_SOURCE_DIR}/config.h.in")
-        configure_file (
-            "${PROJECT_SOURCE_DIR}/config.h.in"
-            "${INCLUDE_OUTPUT_PATH}/config.h"
-            @ONLY
-        )
-    endif(EXISTS "${PROJECT_SOURCE_DIR}/config.h.in")
+#    if(EXISTS "${PROJECT_SOURCE_DIR}/config.h.in")
+#        configure_file (
+#            "${PROJECT_SOURCE_DIR}/config.h.in"
+#            "${INCLUDE_OUTPUT_PATH}/config.h"
+#            @ONLY
+#        )
+#    endif(EXISTS "${PROJECT_SOURCE_DIR}/config.h.in")
+
 
 endmacro ()
 
@@ -215,9 +219,15 @@ endmacro ()
 # Prepares a target for being constructed
 macro    (pileProjectEnd)
 
+    if(EXISTS "${PROJECT_SOURCE_DIR}/config.h.in")
+        configure_file (
+            "${PROJECT_SOURCE_DIR}/config.h.in"
+            "${INCLUDE_OUTPUT_PATH}/config.h"
+            @ONLY
+        )
+    endif(EXISTS "${PROJECT_SOURCE_DIR}/config.h.in")
 
-
-    # documenttion
+    # documentaion
     if(${PROJECT_NAME_UPPER}_BUILD_DOCUMENTATION)
         if(EXISTS "${PROJECT_SOURCE_DIR}/Doxyfile.in")
 
@@ -231,10 +241,12 @@ macro    (pileProjectEnd)
 
             if(DOXYGEN_FOUND)
                 add_custom_target(doc
-                    ${DOXYGEN_EXECUTABLE} ${CMAKE_CURRENT_BINARY_DIR}/Doxyfile
+                    ${DOXYGEN_EXECUTABLE} ${PROJECT_BINARY_DIR}/Doxyfile
                     WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
                     COMMENT "Generating API documentation with Doxygen" VERBATIM
                 )
+            else(DOXYGEN_FOUND)
+                message(STATUS "Documentation requested but Doxygen was not found")
             endif(DOXYGEN_FOUND)
         endif(EXISTS "${PROJECT_SOURCE_DIR}/Doxyfile.in")
     endif(${PROJECT_NAME_UPPER}_BUILD_DOCUMENTATION)

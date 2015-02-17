@@ -126,6 +126,12 @@ macro    (pileProject
       set (TARGET_SYSTEM_UNIX OFF)
     endif ()
 
+    if (CMAKE_BUILD_TYPE MATCHES DEBUG)
+      set (${PROJECT_NAME_UPPER}_DEBUG ON)
+    else ()
+      set (${PROJECT_NAME_UPPER}_DEBUG OFF)
+    endif ()
+
 endmacro ()
 
 # ============================================================================

@@ -42,12 +42,21 @@
 #		<PILE>_TARGET: the actual name of the target
 macro    (pileTarget
           pile_target__name)
+    set(pile_target__argn ${ARGN})
 
     string (TOUPPER "${pile_target__name}" pile_target__name_u)
     string (TOLOWER "${pile_target__name}" pile_target__name_l)
 
     message (STATUS "${pile_target__name_u}: target initialization")
-	
+
+    set(pile_target__gui_app OFF)
+    if (pile_target__argn)
+        list(GET pile_target__argn 0 pile_target__gui_app)
+        if("${pile_target__gui_app}" STREQUAL "GUI")
+            set(pile_target__gui_app ON)
+        endif()
+    endif()
+
 	# prepare variables
 	set( ${pile_target__name_u}_SOURCES )
 	set( ${pile_target__name_u}_HEADERS )
@@ -59,7 +68,10 @@ macro    (pileTarget
 
 	# name of the target
 	set( ${pile_target__name_u}_TARGET "${pile_target__name_l}")
-	
+
+    if (${pile_target__gui_app})
+        set( ${pile_target__name_u}_GUI_FLAG "WIN32")
+    endif()
 endmacro ()
 
 # ============================================================================
@@ -145,7 +157,7 @@ macro    (pileEndTarget
 	
 	# create appropriate target type
 	if ("${pile_end_target__kind}" STREQUAL "exe")
-		add_executable("${${pile_end_target__name_u}_TARGET}"
+        add_executable("${${pile_end_target__name_u}_TARGET}" ${${pile_end_target__name_u}_GUI_FLAG}
 			${${pile_end_target__name_u}_ALL_SRCS})
         if (WIN32)
             if(EXISTS "${EXECUTABLE_OUTPUT_PATH}/${${pile_end_target__name_u}_TARGET}.exe.manifest")

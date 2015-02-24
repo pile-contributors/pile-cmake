@@ -132,17 +132,6 @@ macro    (pileProject
       set (${PROJECT_NAME_UPPER}_DEBUG OFF)
     endif ()
 
-    if(CMAKE_SIZEOF_VOID_P EQUAL 8)
-        set (TARGET_32BITS OFF)
-        set (TARGET_64BITS ON)
-        set (TARGET_BITS 64)
-    else ()
-        set (TARGET_32BITS ON)
-        set (TARGET_64BITS OFF)
-        set (TARGET_BITS 32)
-    endif()
-    message (STATUS "TARGET_BITS = ${TARGET_BITS}")
-
 endmacro ()
 
 # ============================================================================
@@ -204,15 +193,29 @@ macro    (pileProjectCommon)
     set( CMAKE_INCLUDE_CURRENT_DIR ON)
 
     # number of bits
-    if ("${CMAKE_SYSTEM_PROCESSOR}" STREQUAL "x86")
-        set (TARGET_32BITS ON)
-        set (TARGET_64BITS OFF)
-    elseif ("${CMAKE_SYSTEM_PROCESSOR}" STREQUAL "arm")
-        message (FATAL_ERROR "Architecture is not supported")
-    else ("${CMAKE_SYSTEM_PROCESSOR}" STREQUAL "x86")
+    # if ("${CMAKE_SYSTEM_PROCESSOR}" STREQUAL "x86")
+        # set (TARGET_32BITS ON)
+        # set (TARGET_64BITS OFF)
+    # elseif ("${CMAKE_SYSTEM_PROCESSOR}" STREQUAL "arm")
+        # message (FATAL_ERROR "Architecture is not supported")
+    # else ("${CMAKE_SYSTEM_PROCESSOR}" STREQUAL "x86")
+        # set (TARGET_32BITS OFF)
+        # set (TARGET_64BITS ON)
+    # endif ("${CMAKE_SYSTEM_PROCESSOR}" STREQUAL "x86")
+
+    if(CMAKE_SIZEOF_VOID_P EQUAL 8)
         set (TARGET_32BITS OFF)
         set (TARGET_64BITS ON)
-    endif ("${CMAKE_SYSTEM_PROCESSOR}" STREQUAL "x86")
+        set (TARGET_BITS 64)
+    else (CMAKE_SIZEOF_VOID_P EQUAL 4)
+        set (TARGET_32BITS ON)
+        set (TARGET_64BITS OFF)
+        set (TARGET_BITS 32)
+    else()
+        message (FATAL_ERROR "Architecture is not supported (size of void* is ${CMAKE_SIZEOF_VOID_P})")
+    endif()
+    message (STATUS "TARGET_BITS = ${TARGET_BITS}")
+
 
     # Automatically link Qt executables to qtmain target on Windows
     cmake_policy(SET CMP0020 OLD)

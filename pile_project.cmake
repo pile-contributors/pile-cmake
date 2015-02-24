@@ -126,11 +126,22 @@ macro    (pileProject
       set (TARGET_SYSTEM_UNIX OFF)
     endif ()
 
-    if (CMAKE_BUILD_TYPE MATCHES DEBUG)
+    if (CMAKE_BUILD_TYPE MATCHES "Debug")
       set (${PROJECT_NAME_UPPER}_DEBUG ON)
     else ()
       set (${PROJECT_NAME_UPPER}_DEBUG OFF)
     endif ()
+
+    if(CMAKE_SIZEOF_VOID_P EQUAL 8)
+        set (TARGET_32BITS OFF)
+        set (TARGET_64BITS ON)
+        set (TARGET_BITS 64)
+    else ()
+        set (TARGET_32BITS ON)
+        set (TARGET_64BITS OFF)
+        set (TARGET_BITS 32)
+    endif()
+    message (STATUS "TARGET_BITS = ${TARGET_BITS}")
 
 endmacro ()
 

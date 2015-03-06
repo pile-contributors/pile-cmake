@@ -12,8 +12,6 @@ macro    (pileUsedBy
     string (TOUPPER "${pile_used_by__pile_name}" pile_used_by__pile_name_u)
     string (TOLOWER "${pile_used_by__pile_name}" pile_used_by__pile_name_l)
 
-    #message (STATUS "pile_used_by__target = ${pile_used_by__target}")
-    #message (STATUS "copy_${pile_used_by__pile_name_l}_headers = ${copy_${pile_used_by__pile_name_l}_headers}")
     add_dependencies (
         "${pile_used_by__target}"
         "copy_${pile_used_by__pile_name_l}_headers")

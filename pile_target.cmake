@@ -47,8 +47,6 @@ macro    (pileTarget
     string (TOUPPER "${pile_target__name}" pile_target__name_u)
     string (TOLOWER "${pile_target__name}" pile_target__name_l)
 
-    message (STATUS "${pile_target__name_u}: target initialization")
-
     set(pile_target__gui_app OFF)
     if (pile_target__argn)
         list(GET pile_target__argn 0 pile_target__gui_app)
@@ -213,9 +211,6 @@ macro    (pileEndTarget
         endif()
 	endif()
 	
-
-    message (STATUS "${pile_end_target__name_u}: target created")
-
 endmacro ()
 
 # ============================================================================

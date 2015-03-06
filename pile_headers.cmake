@@ -1,5 +1,8 @@
 
-set (COPYFILES_DEBUG_MSG ON)
+if (NOT DEFINED COPYFILES_DEBUG_MSG)
+    set (COPYFILES_DEBUG_MSG OFF)
+endif()
+
 # ============================================================================
 
 # creates a target to copy files

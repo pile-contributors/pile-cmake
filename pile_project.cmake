@@ -42,6 +42,15 @@
 
 
 
+# when things get tough turn this on
+if (NOT DEFINED PILEPROJ_DEBUG_MSG)
+    set (PILEPROJ_DEBUG_MSG OFF)
+endif()
+macro(pileProjectMessage pile_project_message__content)
+    if (PILEPROJ_DEBUG_MSG)
+        message(STATUS "PILE PROJECT> ${pile_project_message__content}")
+    endif()
+endmacro()
 
 
 
@@ -67,14 +76,14 @@ macro    (pileProject
 
 
     # common name for the project
-    message (STATUS "PROJECT_NAME = ${PROJECT_NAME}")
+    pileProjectMessage("PROJECT_NAME = ${PROJECT_NAME}")
 
     # must be a string without spaces and special characters
     string(REGEX REPLACE "[ \t]" "_" PROJECT_NAME_UNIX "${PROJECT_NAME}")
     string(TOUPPER "${PROJECT_NAME_UNIX}" PROJECT_NAME_UPPER)
     string(TOLOWER "${PROJECT_NAME_UNIX}" PROJECT_NAME_UNIX)
-    message (STATUS "PROJECT_NAME_UPPER = ${PROJECT_NAME_UPPER}")
-    message (STATUS "PROJECT_NAME_UNIX = ${PROJECT_NAME_UNIX}")
+    pileProjectMessage("PROJECT_NAME_UPPER = ${PROJECT_NAME_UPPER}")
+    pileProjectMessage("PROJECT_NAME_UNIX = ${PROJECT_NAME_UNIX}")
 
     # the versions
     set(${PROJECT_NAME_UPPER}_VERSION_LIST ${pile_project__version})
@@ -86,10 +95,10 @@ macro    (pileProject
     # when the settings change increment this number
     set(${PROJECT_NAME_UPPER}_SETTINGS_VERSION "${pile_project__settings_version}")
 
-    message (STATUS "${PROJECT_NAME_UPPER}_MAJOR_VERSION = ${${PROJECT_NAME_UPPER}_MAJOR_VERSION}")
-    message (STATUS "${PROJECT_NAME_UPPER}_MINOR_VERSION = ${${PROJECT_NAME_UPPER}_MINOR_VERSION}")
-    message (STATUS "${PROJECT_NAME_UPPER}_PATCH_VERSION = ${${PROJECT_NAME_UPPER}_PATCH_VERSION}")
-    message (STATUS "${PROJECT_NAME_UPPER}_SETTINGS_VERSION = ${${PROJECT_NAME_UPPER}_SETTINGS_VERSION}")
+    pileProjectMessage("${PROJECT_NAME_UPPER}_MAJOR_VERSION = ${${PROJECT_NAME_UPPER}_MAJOR_VERSION}")
+    pileProjectMessage("${PROJECT_NAME_UPPER}_MINOR_VERSION = ${${PROJECT_NAME_UPPER}_MINOR_VERSION}")
+    pileProjectMessage("${PROJECT_NAME_UPPER}_PATCH_VERSION = ${${PROJECT_NAME_UPPER}_PATCH_VERSION}")
+    pileProjectMessage("${PROJECT_NAME_UPPER}_SETTINGS_VERSION = ${${PROJECT_NAME_UPPER}_SETTINGS_VERSION}")
 
     string(TIMESTAMP
         ${PROJECT_NAME_UPPER}_BUILD_TIME
@@ -214,7 +223,7 @@ macro    (pileProjectCommon)
     else()
         message (FATAL_ERROR "Architecture is not supported (size of void* is ${CMAKE_SIZEOF_VOID_P})")
     endif()
-    message (STATUS "TARGET_BITS = ${TARGET_BITS}")
+    pileProjectMessage("TARGET_BITS = ${TARGET_BITS}")
 
 
     # Automatically link Qt executables to qtmain target on Windows
@@ -266,7 +275,7 @@ macro    (pileProjectEnd)
                     COMMENT "Generating API documentation with Doxygen" VERBATIM
                 )
             else(DOXYGEN_FOUND)
-                message(STATUS "Documentation requested but Doxygen was not found")
+                pileProjectMessage("Documentation requested but Doxygen was not found")
             endif(DOXYGEN_FOUND)
         endif(EXISTS "${PROJECT_SOURCE_DIR}/Doxyfile.in")
     endif(${PROJECT_NAME_UPPER}_BUILD_DOCUMENTATION)

@@ -14,7 +14,7 @@ macro    (pileSetDependencies
 	
     set (${pile_set_dependencies__name_u}_DEPENDENCIES
           ${pile_set_dependencies__dependencies} CACHE STRING "piles that current pile depends on")
-	if ( ${pile_set_dependencies__dependencies})
+    if ( ${pile_set_dependencies__name_u}_DEPENDENCIES)
 		pileDebugMessage (
 			"${pile_set_dependencies__name}"
 			"dependencies: ${pile_set_dependencies__dependencies}")

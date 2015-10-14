@@ -48,6 +48,7 @@ include(pile_target)
 include(pile_project)
 include(pile_install)
 include(pile_git)
+include(pile_xp)
 
 # Target system specific
 if(WIN32)

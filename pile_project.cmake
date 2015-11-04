@@ -59,7 +59,6 @@ endmacro()
 # Prepares a target for being constructed
 #
 # Arguments
-#     - name: the user name (CamelCased, with spaces) for the project
 #     - settings_version: version for the settings
 #
 # The macro defines or changes
@@ -71,6 +70,15 @@ endmacro()
 #		<PROJECT>_PATCH_VERSION: pathc/build number
 #		<PROJECT>_SETTINGS_VERSION: the version for settings
 #		<PROJECT>_VERSION: a string in the form "1.2.3"
+#
+#		TARGET_COMPILER_MSVC: The compiler to be used is Microsoft compiler?
+#		TARGET_SYSTEM_WIN32: target system is Windows?
+#		TARGET_SYSTEM_UNIX: are we targeting unix?
+#		<PROJECT_UPPER>_DEBUG: is this a debug build or a release build?
+#
+# The module search path is ammended to include a cmake directory at
+# the top level of the hierarchy.
+#
 macro    (pileProject
           pile_project__settings_version)
 
@@ -86,7 +94,7 @@ macro    (pileProject
     pileProjectMessage("PROJECT_NAME_UNIX = ${PROJECT_NAME_UNIX}")
 
     # the versions
-    set(${PROJECT_NAME_UPPER}_VERSION_LIST ${pile_project__version})
+    # set(${PROJECT_NAME_UPPER}_VERSION_LIST ${pile_project__version})
     set(${PROJECT_NAME_UPPER}_MAJOR_VERSION ${PROJECT_VERSION_MAJOR})
     set(${PROJECT_NAME_UPPER}_MINOR_VERSION ${PROJECT_VERSION_MINOR})
     set(${PROJECT_NAME_UPPER}_PATCH_VERSION ${PROJECT_VERSION_PATCH})
@@ -145,16 +153,35 @@ endmacro ()
 
 # ============================================================================
 
-# Prepares a target for being constructed
-macro    (pileProjectCommon)
-
+# Common project initialization related to debug/release variants.
+#
+# The macro sets the postfix for targets to "_debug" in
+# Debug builds and adds a number of definitions for all targets 
+# of this project:
+# - QT_DEBUG or QT_NO_DEBUG
+# - <PROJECT_NAME_UPPER>_DEBUG or <PROJECT_NAME_UPPER>_NO_DEBUG
+# - _DEBUG or _NDEBUG
+#
+#
+macro    (pileProjectCommonDebug)
     set( CMAKE_DEBUG_POSTFIX  "_debug")
     if("${CMAKE_BUILD_TYPE}" STREQUAL "Debug")
         add_definitions( -DQT_DEBUG=1 -D${PROJECT_NAME_UPPER}_DEBUG=1 -D_DEBUG=1 )
     else()
         add_definitions( -DQT_NO_DEBUG=1 -D${PROJECT_NAME_UPPER}_NO_DEBUG=1 -D_NDEBUG=1 )
     endif()
+endmacro ()
 
+# ============================================================================
+
+# Common project initialization related to module paths.
+#
+# Top level cmake directory and the list of directories in
+# CMAKE_MODULE_PATH environment variable are added to
+# internal CMAKE_MODULE_PATH variable. The list is fixed
+# for Windows systems and duplicates are removed.
+#
+macro    (pileProjectCommonModPaths)
     # find cmake modules in `cmake` directory
     # also use CMAKE_MODULE_PATH environment variable
     list (APPEND CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake/")
@@ -163,6 +190,19 @@ macro    (pileProjectCommon)
         string(REPLACE "\\" "/" CMAKE_MODULE_PATH "${CMAKE_MODULE_PATH}")
     ENDIF()
     list(REMOVE_DUPLICATES CMAKE_MODULE_PATH)
+endmacro ()
+
+# ============================================================================
+
+# Common project initialization related to user options.
+#
+# Following general purpose options are created:
+# - <PROJECT_NAME_UPPER>_BUILD_TESTS: enable tests
+# - <PROJECT_NAME_UPPER>_BUILD_DOCUMENTATION: enable documentation
+# - <PROJECT_NAME_UPPER>_FORCE_DEBUG: debug features in release builds
+# Position independent code is also enabled.
+#
+macro    (pileProjectCommonOptions)
 
     # default to position independent code
     set( CMAKE_POSITION_INDEPENDENT_CODE ON)
@@ -177,10 +217,20 @@ macro    (pileProjectCommon)
     option( ${PROJECT_NAME_UPPER}_FORCE_DEBUG
             "Activate internal debug features in a release build"
             OFF)
+endmacro ()
 
-    # see if we can find Qt
-    find_package(Qt5 COMPONENTS Core Widgets)
+# ============================================================================
 
+# Common project initialization related to build directory.
+#
+# A build directory will be assumed inside top level binary directory
+# and will have three subdirectories: bin, lib and include.
+# These folders are created and following variables are set:
+# - EXECUTABLE_OUTPUT_PATH, CMAKE_RUNTIME_OUTPUT_DIRECTORY
+# - LIBRARY_OUTPUT_PATH, LIBRARY_OUTPUT_DIRECTORY
+# - INCLUDE_OUTPUT_PATH
+#
+macro    (pileProjectCommonBuildDir)
     # assume a build directory
     set( CMAKE_RUNTIME_OUTPUT_DIRECTORY
         "${PROJECT_BINARY_DIR}/build/bin" )
@@ -189,29 +239,40 @@ macro    (pileProjectCommon)
     file(MAKE_DIRECTORY ${EXECUTABLE_OUTPUT_PATH})
     set( LIBRARY_OUTPUT_PATH
         "${PROJECT_BINARY_DIR}/build/lib" )
+    set( ARCHIVE_OUTPUT_DIRECTORY
+        "${PROJECT_BINARY_DIR}/build/lib" )
+    set( LIBRARY_OUTPUT_DIRECTORY
+        "${PROJECT_BINARY_DIR}/build/lib" )
     file(MAKE_DIRECTORY ${LIBRARY_OUTPUT_PATH})
     set( INCLUDE_OUTPUT_PATH
         "${PROJECT_BINARY_DIR}/build/include/${PROJECT_NAME_UNIX}" )
     file(MAKE_DIRECTORY ${INCLUDE_OUTPUT_PATH})
+endmacro ()
 
+# ============================================================================
+
+# Common project initialization related to include directories.
+#
+# Include paths are altered to include source and destination
+# for header files. Current directory is also included by default.
+#
+macro    (pileProjectCommonIncludeDir)
     include_directories(
       "${PROJECT_SOURCE_DIR}"
       "${PROJECT_BINARY_DIR}/build/include")
 
     # Find includes in corresponding build directories
     set( CMAKE_INCLUDE_CURRENT_DIR ON)
+endmacro ()
 
-    # number of bits
-    # if ("${CMAKE_SYSTEM_PROCESSOR}" STREQUAL "x86")
-        # set (TARGET_32BITS ON)
-        # set (TARGET_64BITS OFF)
-    # elseif ("${CMAKE_SYSTEM_PROCESSOR}" STREQUAL "arm")
-        # message (FATAL_ERROR "Architecture is not supported")
-    # else ("${CMAKE_SYSTEM_PROCESSOR}" STREQUAL "x86")
-        # set (TARGET_32BITS OFF)
-        # set (TARGET_64BITS ON)
-    # endif ("${CMAKE_SYSTEM_PROCESSOR}" STREQUAL "x86")
+# ============================================================================
 
+# Common project initialization related to number of bits in an integer.
+#
+# Variables TARGET_32BITS and TARGET_64BITS are boolean while
+# TARGET_BITS is set to either 64 or 32.
+#
+macro    (pileProjectCommonBits)
     if(CMAKE_SIZEOF_VOID_P EQUAL 8)
         set (TARGET_32BITS OFF)
         set (TARGET_64BITS ON)
@@ -224,28 +285,46 @@ macro    (pileProjectCommon)
         message (FATAL_ERROR "Architecture is not supported (size of void* is ${CMAKE_SIZEOF_VOID_P})")
     endif()
     pileProjectMessage("TARGET_BITS = ${TARGET_BITS}")
-
-
-    # Automatically link Qt executables to qtmain target on Windows
-    cmake_policy(SET CMP0020 OLD)
-
-    # Instruct CMake to run moc automatically when needed.
-    set ( CMAKE_AUTOMOC ON)
-
-#    if(EXISTS "${PROJECT_SOURCE_DIR}/config.h.in")
-#        configure_file (
-#            "${PROJECT_SOURCE_DIR}/config.h.in"
-#            "${INCLUDE_OUTPUT_PATH}/config.h"
-#            @ONLY
-#        )
-#    endif(EXISTS "${PROJECT_SOURCE_DIR}/config.h.in")
-
-
 endmacro ()
 
 # ============================================================================
 
-# Prepares a target for being constructed
+# Common project initialization related to Qt package.
+#
+# Qt5 package is silently searched and core and widgets components
+# are requested. We also enable automatic link to qtmain
+# on Windows and automatic moc.
+#
+macro    (pileProjectCommonQt)
+    # see if we can find Qt
+    find_package(Qt5 QUIET COMPONENTS Core Widgets)
+	
+    # Automatically link Qt executables to qtmain target on Windows
+    cmake_policy(SET CMP0020 OLD)
+
+    # Instruct CMake to run moc automatically when needed.
+    set (CMAKE_AUTOMOC ON)
+endmacro ()
+
+# ============================================================================
+
+# Common project initialization
+macro    (pileProjectCommon)
+	pileProjectCommonDebug ()
+	pileProjectCommonModPaths ()
+	pileProjectCommonOptions ()
+	pileProjectCommonBuildDir ()
+	pileProjectCommonIncludeDir ()
+	pileProjectCommonBits ()
+	pileProjectCommonQt ()
+endmacro ()
+
+# ============================================================================
+
+# Final touches for a pile project
+#
+# Configures default file if it exists and creates a target for
+# documentation.
 macro    (pileProjectEnd)
 
     if(EXISTS "${PROJECT_SOURCE_DIR}/config.h.in")

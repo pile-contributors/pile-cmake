@@ -1,6 +1,6 @@
 
 if (NOT DEFINED COPYFILES_DEBUG_MSG)
-    set (COPYFILES_DEBUG_MSG OFF)
+    set (COPYFILES_DEBUG_MSG ON)
 endif()
 
 # ============================================================================
@@ -78,8 +78,12 @@ endmacro ()
 macro    (pileCopyHeaders
           pile_copy_headers__pile_name_camel_case)
 
-    string (TOUPPER "${pile_copy_headers__pile_name_camel_case}" pile_copy_headers__name_u)
-    string (TOLOWER "${pile_copy_headers__pile_name_camel_case}" pile_copy_headers__name_l)
+    string (TOUPPER
+            "${pile_copy_headers__pile_name_camel_case}"
+            pile_copy_headers__name_u)
+    string (TOLOWER
+            "${pile_copy_headers__pile_name_camel_case}"
+            pile_copy_headers__name_l)
 
     pileCreateCopyTarget (
         "copy_${pile_copy_headers__name_l}_headers"

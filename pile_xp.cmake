@@ -47,10 +47,6 @@ ENDIF (MSVC)
 #
 # Arguments
 #     - target_name: name of the target that produces the binary.
-#     - commit (output variable): resulted commit
-#     - branch (output variable): resulted branch
-#
-# An error is generated if the path is not part of a git repository.
 #
 
 macro (FixForXP

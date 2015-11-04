@@ -43,7 +43,7 @@ macro    (pileGitStamp
                 ERROR_VARIABLE pile_git_stamp__err
                 OUTPUT_STRIP_TRAILING_WHITESPACE)
         if (pile_git_stamp__err)
-            message(WARNING "Error extracting git commit: ${pile_git_stamp__err}")
+            message(WARNING "Error extracting git commit from ${pile_git_stamp__path}: ${pile_git_stamp__err}")
             set(${pile_git_stamp__commit} "error")
         endif()
 
@@ -132,7 +132,7 @@ macro    (pileGitStampHeaderCheck
         "${CMAKE_CURRENT_BINARY_DIR}/git_info.h.in")
     if(NOT EXISTS ${pile_git_stamp_header_check__intermed})
         file(WRITE "${pile_git_stamp_header_check__intermed}"
-"${pile_git_stamp_header__header}
+"${pile_git_stamp_header_check__header}
 
 #ifndef SOURCE_CODE_GIT_HASH
 #   define SOURCE_CODE_GIT_HASH @SOURCE_CODE_GIT_HASH@
@@ -142,7 +142,7 @@ macro    (pileGitStampHeaderCheck
 #   define SOURCE_CODE_GIT_BRANCH @SOURCE_CODE_GIT_BRANCH@
 #endif // SOURCE_CODE_GIT_BRANCH
 
-${pile_git_stamp_header__footer}
+${pile_git_stamp_header_check__footer}
 ")
     endif()
 

@@ -23,13 +23,13 @@ macro    (pileInclude
           pile_include__name_camel_case)
     set (pile_include__argn ${ARGN})
 
-	# load optional path argument
+    # load optional path argument
     set(pile_include__path )
     if (pile_include__argn)
         list(GET pile_include__argn 0 pile_include__path)
-	endif()
+    endif()
 
-	# compute upper and lover case variants
+    # compute upper and lover case variants
     string (TOUPPER ${pile_include__name_camel_case} pile_include__name_u)
     string (TOLOWER ${pile_include__name_camel_case} pile_include__name_l)
     

@@ -33,13 +33,13 @@
 # Prepares a target for being constructed
 # 
 # The macro defines or changes
-#		<PILE>_SOURCES: the list of source files
-#		<PILE>_HEADERS: the list of headers
-#		<PILE>_UIS: the list of UI files
-#		<PILE>_RES: the list of resource files
-#		<PILE>_LIBS: the list of libraries to link against
-#		<PILE>_QT_MODS: the list of Qt modules to link against
-#		<PILE>_TARGET: the actual name of the target
+#        <PILE>_SOURCES: the list of source files
+#        <PILE>_HEADERS: the list of headers
+#        <PILE>_UIS: the list of UI files
+#        <PILE>_RES: the list of resource files
+#        <PILE>_LIBS: the list of libraries to link against
+#        <PILE>_QT_MODS: the list of Qt modules to link against
+#        <PILE>_TARGET: the actual name of the target
 macro    (pileTarget
           pile_target__name)
     set(pile_target__argn ${ARGN})
@@ -55,17 +55,17 @@ macro    (pileTarget
         endif()
     endif()
 
-	# prepare variables
-	set( ${pile_target__name_u}_SOURCES )
-	set( ${pile_target__name_u}_HEADERS )
-	set( ${pile_target__name_u}_UIS )
-	set( ${pile_target__name_u}_RES )
-	set( ${pile_target__name_u}_LIBS )
-	set( ${pile_target__name_u}_QT_MODS )
+    # prepare variables
+    set( ${pile_target__name_u}_SOURCES )
+    set( ${pile_target__name_u}_HEADERS )
+    set( ${pile_target__name_u}_UIS )
+    set( ${pile_target__name_u}_RES )
+    set( ${pile_target__name_u}_LIBS )
+    set( ${pile_target__name_u}_QT_MODS )
     set( ${pile_target__name_u}_SOURCE_DIR "${CMAKE_CURRENT_SOURCE_DIR}")
 
-	# name of the target
-	set( ${pile_target__name_u}_TARGET "${pile_target__name_l}")
+    # name of the target
+    set( ${pile_target__name_u}_TARGET "${pile_target__name_l}")
 
     if (${pile_target__gui_app})
         set( ${pile_target__name_u}_GUI_FLAG "WIN32")
@@ -83,8 +83,8 @@ endmacro ()
 #       directory for headers (uses pileCreateCopyTargetTarget)
 #
 # The macro defines or changes
-#		<PILE>_UIS_SRC: the list of source files generated from <PILE>_UIS
-#		<PILE>_RES_SRC: the list of source files generated from <PILE>_RES
+#        <PILE>_UIS_SRC: the list of source files generated from <PILE>_UIS
+#        <PILE>_RES_SRC: the list of source files generated from <PILE>_RES
 macro    (pileEndTarget
           pile_end_target__name
           pile_end_target__kind)
@@ -100,23 +100,23 @@ macro    (pileEndTarget
 
     string (TOUPPER "${pile_end_target__name}" pile_end_target__name_u)
     string (TOLOWER "${pile_end_target__name}" pile_end_target__name_l)
-	
-	# expand uis
-	set( ${pile_end_target__name_u}_UIS_SRC )
-    if    (${pile_end_target__name_u}_UIS)
+
+    # expand uis
+    unset(${pile_end_target__name_u}_UIS_SRC)
+    if (${pile_end_target__name_u}_UIS)
         qt5_wrap_ui (${pile_end_target__name_u}_UIS_SRC 
-			${${pile_end_target__name_u}_UIS})
+            ${${pile_end_target__name_u}_UIS})
     endif ()
-	
-	# expand resources
-    set( ${pile_end_target__name_u}_RES_SRC)
-    if    (${pile_end_target__name_u}_RES)
+
+    # expand resources
+    unset(${pile_end_target__name_u}_RES_SRC)
+    if (${pile_end_target__name_u}_RES)
         qt5_add_resources( ${pile_end_target__name_u}_RES_SRC 
-			${${pile_end_target__name_u}_RES})
-    endif ()	
-	
+            ${${pile_end_target__name_u}_RES})
+    endif ()
+
     # make sure all paths are absolute
-    set (pile_end_target__temp_list )
+    unset(pile_end_target__temp_list )
     if (${pile_end_target__name_u}_HEADERS)
         foreach(pile_end_target__iter ${${pile_end_target__name_u}_HEADERS})
             if (NOT IS_ABSOLUTE "${pile_end_target__iter}")
@@ -146,17 +146,17 @@ macro    (pileEndTarget
         list(REMOVE_DUPLICATES ${pile_end_target__name_u}_QT_MODS)
     endif()
 
-	# all sources used to build the target
-	set( ${pile_end_target__name_u}_ALL_SRCS
-			${${pile_end_target__name_u}_SOURCES}
-			${${pile_end_target__name_u}_UIS_SRC}
-			${${pile_end_target__name_u}_RES_SRC}
-			${${pile_end_target__name_u}_HEADERS})
-	
-	# create appropriate target type
-	if ("${pile_end_target__kind}" STREQUAL "exe")
+    # all sources used to build the target
+    set( ${pile_end_target__name_u}_ALL_SRCS
+            ${${pile_end_target__name_u}_SOURCES}
+            ${${pile_end_target__name_u}_UIS_SRC}
+            ${${pile_end_target__name_u}_RES_SRC}
+            ${${pile_end_target__name_u}_HEADERS})
+
+    # create appropriate target type
+    if ("${pile_end_target__kind}" STREQUAL "exe")
         add_executable("${${pile_end_target__name_u}_TARGET}" ${${pile_end_target__name_u}_GUI_FLAG}
-			${${pile_end_target__name_u}_ALL_SRCS})
+            ${${pile_end_target__name_u}_ALL_SRCS})
         if (WIN32)
             if(EXISTS "${EXECUTABLE_OUTPUT_PATH}/${${pile_end_target__name_u}_TARGET}.exe.manifest")
             install(
@@ -165,27 +165,48 @@ macro    (pileEndTarget
                 COMPONENT applications)
             endif()
         endif()
-	elseif ("${pile_end_target__kind}" STREQUAL "shared")
-		add_library("${${pile_end_target__name_u}_TARGET}" SHARED
-			${${pile_end_target__name_u}_ALL_SRCS})
-	else ()
-		add_library("${${pile_end_target__name_u}_TARGET}" STATIC
-			${${pile_end_target__name_u}_ALL_SRCS})
-	endif()
+    elseif ("${pile_end_target__kind}" STREQUAL "shared")
+        add_library("${${pile_end_target__name_u}_TARGET}" SHARED
+            ${${pile_end_target__name_u}_ALL_SRCS})
+    else ()
+        add_library("${${pile_end_target__name_u}_TARGET}" STATIC
+            ${${pile_end_target__name_u}_ALL_SRCS})
+    endif()
 
-	# link libraries
-	if (${pile_end_target__name_u}_LIBS)
-		target_link_libraries( ${${pile_end_target__name_u}_TARGET}
-			${${pile_end_target__name_u}_LIBS})
-	endif()
+    # link libraries
+    if (${pile_end_target__name_u}_LIBS)
+        target_link_libraries( ${${pile_end_target__name_u}_TARGET}
+            ${${pile_end_target__name_u}_LIBS})
+    endif()
 
-	# link / use Qt modules
-	if (${pile_end_target__name_u}_QT_MODS)
-		qt5_use_modules( ${${pile_end_target__name_u}_TARGET}
-			${${pile_end_target__name_u}_QT_MODS})
-	endif()
+    # link / use Qt modules
+    if (${pile_end_target__name_u}_QT_MODS)
+        qt5_use_modules( ${${pile_end_target__name_u}_TARGET}
+            ${${pile_end_target__name_u}_QT_MODS})
 
-	# what to install where
+        # add modules to list of files to be installed
+        unset(local_dep_list)
+        set (local_dep_list ${PILE_PROJECT_DEP_LIBS} ${${pile_end_target__name_u}_QT_MODS})
+        set (PILE_PROJECT_DEP_LIBS ${local_dep_list}
+             CACHE INTERNAL "The list of dlls to install and package" FORCE)
+
+        # see if there are some plug-ins we also want
+        unset(local_dep_list)
+        set (local_dep_list ${PILE_PROJECT_QT_PLUGINS})
+        foreach(qt_mod ${${pile_end_target__name_u}_QT_MODS})
+            string(TOLOWER "${qt_mod}" qt_mod_std)
+            if ("${qt_mod}" STREQUAL "printsupport")
+                if (TARGET_SYSTEM_WIN32)
+                    list(APPEND local_dep_list "printsupport/windowsprintersupport")
+                endif()
+            endif()
+            unset(qt_mod_std)
+        endforeach()
+        set (PILE_PROJECT_QT_PLUGINS ${local_dep_list}
+             CACHE INTERNAL "The list of Qt plug-ins to install and package" FORCE)
+    endif()
+
+    # what to install where
     install(
         TARGETS "${${pile_end_target__name_u}_TARGET}"
         ARCHIVE
@@ -197,20 +218,20 @@ macro    (pileEndTarget
         RUNTIME
             DESTINATION bin
             COMPONENT applications)
-	
-	if (${pile_end_target__name_u}_HEADERS)
-		install(
-			FILES ${${pile_end_target__name_u}_HEADERS}
-			DESTINATION include
-			COMPONENT headers)
+
+    if (${pile_end_target__name_u}_HEADERS)
+        install(
+            FILES ${${pile_end_target__name_u}_HEADERS}
+            DESTINATION include
+            COMPONENT headers)
         if (pile_end_target__copy_headers)
             pileCreateCopyTargetTarget("${pile_end_target__name}")
             add_dependencies(
                 "${${pile_end_target__name_u}_TARGET}"
                 "copy_${pile_end_target__name_l}_headers")
         endif()
-	endif()
-	
+    endif()
+
 endmacro ()
 
 # ============================================================================

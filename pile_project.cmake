@@ -173,6 +173,12 @@ macro    (pileProject
       set (TARGET_SYSTEM_UNIX OFF)
     endif ()
 
+    if (APPLE)
+      set (TARGET_SYSTEM_APPLE ON)
+    else ()
+      set (TARGET_SYSTEM_APPLE OFF)
+    endif ()
+
     if (CMAKE_BUILD_TYPE MATCHES "Debug")
       set (${PROJECT_NAME_UPPER}_DEBUG ON)
     else ()
@@ -185,6 +191,7 @@ macro    (pileProject
         CACHE INTERNAL "The list of directories to search for dlls" FORCE)
     set (PILE_PROJECT_QT_PLUGINS
          CACHE INTERNAL "The list of Qt plug-ins to install and package" FORCE)
+
 endmacro ()
 
 # ============================================================================
@@ -431,6 +438,17 @@ macro    (pileProjectCommon)
     pileProjectCommonBits ()
     pileProjectCommonQt ()
     pileProjectCommonPackage ()
+
+
+    #if (NOT CMAKE_INSTALL_PREFIX)
+        if (${PROJECT_NAME_UPPER}_DEBUG)
+            if ("${CMAKE_INSTALL_PREFIX}" MATCHES "[A-Za-z]:[\\\\/]Program Files.+")
+                set (CMAKE_INSTALL_PREFIX
+                    "${PROJECT_SOURCE_DIR}/../install-${CMAKE_BUILD_TYPE}-${TARGET_BITS}"
+                    CACHE PATH "install prefix for debug should not go to Program Files" FORCE)
+            endif()
+        endif()
+    #endif()
 endmacro ()
 
 # ============================================================================

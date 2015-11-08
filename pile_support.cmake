@@ -50,6 +50,7 @@ include(pile_install)
 include(pile_git)
 include(pile_subdir)
 include(pile_other_helpers)
+include(pile_call_by_name)
 
 # Target system specific
 if(WIN32)

@@ -67,6 +67,10 @@ macro    (pileTarget
     # name of the target
     set( ${pile_target__name_u}_TARGET "${pile_target__name_l}")
 
+    unset(THIS_TARGET)
+    set(THIS_TARGET "${pile_target__name}")
+    unset(THIS_TARGET_PILES)
+
     if (${pile_target__gui_app})
         set( ${pile_target__name_u}_GUI_FLAG "WIN32")
     endif()
@@ -262,7 +266,63 @@ macro    (pileCreateCopyTargetTarget
         "${${pile_copy_target_target__name_u}_HEADERS}")
         #"${${pile_copy_target_target__name_u}_SOURCE_DIR}")
 
+    unset(pile_iter)
+    foreach(pile_iter ${THIS_TARGET_PILES})
+        unset(pile_upper)
+        string(TOUPPER  "${pile_iter}" pile_upper)
+        unset(pile_lower)
+        string(TOLOWER  "${pile_iter}" pile_lower)
+
+        add_dependencies(
+            ${${THIS_TARGET}_TARGET}
+            "copy_${pile_lower}_headers")
+        pileCopyHeaders(${pile_iter})
+
+        if (${THIS_TARGET}_OWN_HEADERS)
+            pileCreateCopyTarget (
+                "copy_${pile_lower}_headers"
+                "${pile_iter} headers are being copied"
+                "${INCLUDE_OUTPUT_PATH}"
+                "${${THIS_TARGET}_OWN_HEADERS}")           
+        endif()
+    endforeach()
+
 endmacro ()
 
+# ============================================================================
+
+# Adds specified piles to current target
+# 
+# Arguments
+#     - all: are the names of the piles
+#
+# The macro defines or changes
+#        <PILE>_UIS_SRC: the list of source files generated from <PILE>_UIS
+#        <PILE>_RES_SRC: the list of source files generated from <PILE>_RES
+#
+macro    (pileTargetSubPiles)
+
+    set(THIS_TARGET_PILES ${ARGN})
+    unset(pile_iter)
+    foreach(pile_iter ${THIS_TARGET_PILES})
+        unset(pile_upper)
+        string(TOUPPER  "${pile_iter}" pile_upper)
+        unset(pile_lower)
+        string(TOLOWER  "${pile_iter}" pile_lower)
+        unset(pile_target_upper)
+        string(TOUPPER  "${THIS_TARGET}" pile_target_upper)
+
+
+        pileInclude (${pile_iter})
+        pileCallByName("${pile_lower}Init" PILE_SHARED)
+        list(APPEND ${pile_target_upper}_SOURCES ${${pile_upper}_SOURCES})
+        list(APPEND ${pile_target_upper}_HEADERS ${${pile_upper}_HEADERS})
+        list(APPEND ${pile_target_upper}_QT_MODS ${${pile_upper}_QT_MODS})
+        if (${pile_target_upper}_QT_MODS)
+            list(REMOVE_DUPLICATES ${pile_target_upper}_QT_MODS)
+        endif()
+    endforeach()
+
+endmacro()
 # ============================================================================
 

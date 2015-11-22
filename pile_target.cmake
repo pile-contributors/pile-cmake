@@ -31,7 +31,7 @@
 # ============================================================================
 
 # Prepares a target for being constructed
-# 
+#
 # The macro defines or changes
 #        <PILE>_SOURCES: the list of source files
 #        <PILE>_HEADERS: the list of headers
@@ -79,7 +79,7 @@ endmacro ()
 # ============================================================================
 
 # Constructs the target based on the provided options
-# 
+#
 # Arguments
 #     - name: the user name for the target
 #     - kind: either "exe", "shared" or "static"
@@ -94,7 +94,7 @@ macro    (pileEndTarget
           pile_end_target__kind)
     set(pile_end_target__argn ${ARGN})
 
-    set(pile_end_target__copy_headers OFF)
+    unset(pile_end_target__copy_headers)
     if (pile_end_target__argn)
         list(GET pile_end_target__argn 0 pile_end_target__copy_headers)
         if("${pile_end_target__copy_headers}" STREQUAL "COPY")
@@ -108,14 +108,14 @@ macro    (pileEndTarget
     # expand uis
     unset(${pile_end_target__name_u}_UIS_SRC)
     if (${pile_end_target__name_u}_UIS)
-        qt5_wrap_ui (${pile_end_target__name_u}_UIS_SRC 
+        qt5_wrap_ui (${pile_end_target__name_u}_UIS_SRC
             ${${pile_end_target__name_u}_UIS})
     endif ()
 
     # expand resources
     unset(${pile_end_target__name_u}_RES_SRC)
     if (${pile_end_target__name_u}_RES)
-        qt5_add_resources( ${pile_end_target__name_u}_RES_SRC 
+        qt5_add_resources( ${pile_end_target__name_u}_RES_SRC
             ${${pile_end_target__name_u}_RES})
     endif ()
 
@@ -233,6 +233,15 @@ macro    (pileEndTarget
             add_dependencies(
                 "${${pile_end_target__name_u}_TARGET}"
                 "copy_${pile_end_target__name_l}_headers")
+        else()
+            unset(pile_iter)
+            foreach(pile_iter ${THIS_TARGET_PILES})
+                unset(pile_lower)
+                string(TOLOWER  "${pile_iter}" pile_lower)
+                add_dependencies(
+                    "${${pile_end_target__name_u}_TARGET}"
+                    "copy_${pile_lower}_headers")
+            endforeach()
         endif()
     endif()
 
@@ -249,15 +258,23 @@ endmacro ()
 macro    (pileCreateCopyTargetTarget
           pile_copy_target_target__name)
 
+    unset(pile_copy_target_target__argn)
     set (pile_copy_target_target__argn ${ARGN})
 
+    unset(pile_copy_target_target__destination)
     set(pile_copy_target_target__destination "${INCLUDE_OUTPUT_PATH}")
     if (pile_copy_target_target__argn)
         list(GET pile_copy_target_target__argn 0 pile_copy_target_target__destination)
     endif()
 
+    unset(pile_copy_target_target__name_u)
     string (TOUPPER "${pile_copy_target_target__name}" pile_copy_target_target__name_u)
+    unset(pile_copy_target_target__name_l)
     string (TOLOWER "${pile_copy_target_target__name}" pile_copy_target_target__name_l)
+    unset(pile_copy_target_target__target_u)
+    string (TOUPPER "${THIS_TARGET}" pile_copy_target_target__target_u)
+    unset(pile_copy_target_target__target_l)
+    string (TOLOWER "${THIS_TARGET}" pile_copy_target_target__target_l)
 
     pileCreateCopyTarget (
         "copy_${pile_copy_target_target__name_l}_headers"
@@ -274,25 +291,29 @@ macro    (pileCreateCopyTargetTarget
         string(TOLOWER  "${pile_iter}" pile_lower)
 
         add_dependencies(
-            ${${THIS_TARGET}_TARGET}
+            ${${pile_copy_target_target__target_u}_TARGET}
             "copy_${pile_lower}_headers")
         pileCopyHeaders(${pile_iter})
 
-        if (${THIS_TARGET}_OWN_HEADERS)
-            pileCreateCopyTarget (
-                "copy_${pile_lower}_headers"
-                "${pile_iter} headers are being copied"
-                "${INCLUDE_OUTPUT_PATH}"
-                "${${THIS_TARGET}_OWN_HEADERS}")           
-        endif()
+
     endforeach()
 
+    if (${pile_copy_target_target__target_u}_OWN_HEADERS)
+        pileCreateCopyTarget (
+            "copy_${pile_copy_target_target__target_l}_headers"
+            "${pile_iter} headers are being copied"
+            "${INCLUDE_OUTPUT_PATH}"
+            "${${pile_copy_target_target__target_u}_OWN_HEADERS}")
+        add_dependencies(
+            ${${pile_copy_target_target__target_u}_TARGET}
+            "copy_${pile_copy_target_target__target_l}_headers")
+    endif()
 endmacro ()
 
 # ============================================================================
 
 # Adds specified piles to current target
-# 
+#
 # Arguments
 #     - all: are the names of the piles
 #
@@ -321,6 +342,7 @@ macro    (pileTargetSubPiles)
         if (${pile_target_upper}_QT_MODS)
             list(REMOVE_DUPLICATES ${pile_target_upper}_QT_MODS)
         endif()
+        pileCopyHeaders("${pile_iter}")
     endforeach()
 
 endmacro()

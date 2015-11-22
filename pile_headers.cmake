@@ -11,8 +11,8 @@ endif()
 # otherwise all files are going to be copied in same directory
 macro    (pileCreateCopyTarget
           pile_create_copy_target__target_name
-          pile_create_copy_target__target_description 
-          pile_create_copy_target__destination_path 
+          pile_create_copy_target__target_description
+          pile_create_copy_target__destination_path
           pile_create_copy_target__files_list)
     set (pile_create_copy_target__argn ${ARGN})
 
@@ -31,19 +31,19 @@ macro    (pileCreateCopyTarget
     pileDebugMessage ("COPYFILES"
         "PILE_CREATE_COPY_TARGET: base_path =  ${pile_create_copy_target__base_path}")
 
-	if(NOT EXISTS "${pile_create_copy_target__destination_path}")
-		file(MAKE_DIRECTORY "${pile_create_copy_target__destination_path}")
-	endif()
-	
+    if(NOT EXISTS "${pile_create_copy_target__destination_path}")
+        file(MAKE_DIRECTORY "${pile_create_copy_target__destination_path}")
+    endif()
+
     add_custom_target(
-        "${pile_create_copy_target__target_name}" ALL
+        "${pile_create_copy_target__target_name}"
         WORKING_DIRECTORY "${pile_create_copy_target__destination_path}"
         COMMENT "${pile_create_copy_target__target_description}"
         VERBATIM
         DEPENDS ${pile_create_copy_target__files_list})
     if (pile_create_copy_target__base_path)
         foreach (iter_h ${pile_create_copy_target__files_list})
-            string (REPLACE 
+            string (REPLACE
                 "${pile_create_copy_target__base_path}"
                 ""
                 iter_h_name

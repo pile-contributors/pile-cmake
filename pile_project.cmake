@@ -388,12 +388,12 @@ macro    (pileProjectCommonPackage)
     # "standard" path for config file template
     if (NOT CPACK_PROJECT_CONFIG_FILE)
         set (CPACK_PROJECT_CONFIG_FILE
-             "${PROJECT_SOURCE_DIR}/packaging/CPackConfigurations.cmake")
+             "${PROJECT_BINARY_DIR}/CPackConfigurations.cmake")
     endif()
     # "standard" path for config file
     if (NOT CPACK_PROJECT_CONFIG_TEMPLATE)
         set (CPACK_PROJECT_CONFIG_TEMPLATE
-             "${PROJECT_BINARY_DIR}/CPackConfigurations.cmake.in")
+             "${PROJECT_SOURCE_DIR}/packaging/CPackConfigurations.cmake.in")
     endif()
 
     # version
@@ -452,6 +452,17 @@ macro    (pileProjectCommon)
 endmacro ()
 
 # ============================================================================
+
+macro (pileProjectAddDocument document_to_search)
+    unset (local_document_found)
+    find_file(local_document_found "${document_to_search}"
+              HINTS "${PROJECT_SOURCE_DIR}/documents"
+              NO_DEFAULT_PATHS)
+    if (local_document_found)
+        list (APPEND PROJECT_INSTALLED_DOCUMENTS ${local_document_found})
+    endif()
+    unset (local_document_found)
+endmacro ()
 
 # Install and package project and dependencies.
 #
@@ -592,6 +603,21 @@ macro    (pileProjectInstall)
             COMPONENT applications)
     endif()
 
+    # documents
+    pileProjectAddDocument ("Warranty, Disclaimer.rtf")
+    pileProjectAddDocument ("Privacy Policy.rtf")
+    pileProjectAddDocument ("FatCow License.txt")
+    pileProjectAddDocument ("OpenSSL License.txt")
+    pileProjectAddDocument ("Qt License.txt")
+    pileProjectAddDocument ("Qt Third Party Software Listing.txt")
+    list(REMOVE_DUPLICATES PROJECT_INSTALLED_DOCUMENTS)
+    if (PROJECT_INSTALLED_DOCUMENTS)
+        install(
+            FILES ${PROJECT_INSTALLED_DOCUMENTS}
+            DESTINATION documents
+            COMPONENT documents)
+    endif ()
+
     if(EXISTS "${CPACK_PROJECT_CONFIG_TEMPLATE}")
         configure_file (
             "${CPACK_PROJECT_CONFIG_TEMPLATE}"
@@ -599,6 +625,9 @@ macro    (pileProjectInstall)
             @ONLY)
     endif()
 
+    # all library files listed in the variable
+    # CMAKE_INSTALL_SYSTEM_RUNTIME_LIBS will be installed
+    INCLUDE(InstallRequiredSystemLibraries)
     INCLUDE(CPack)
 endmacro ()
 

@@ -36,7 +36,7 @@ macro    (pileCreateCopyTarget
     endif()
 
     add_custom_target(
-        "${pile_create_copy_target__target_name}"
+        "${pile_create_copy_target__target_name}" ALL
         WORKING_DIRECTORY "${pile_create_copy_target__destination_path}"
         COMMENT "${pile_create_copy_target__target_description}"
         VERBATIM

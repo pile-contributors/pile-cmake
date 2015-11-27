@@ -199,13 +199,14 @@ macro    (pileEndTarget
         set (local_dep_list ${PILE_PROJECT_QT_PLUGINS})
         foreach(qt_mod ${${pile_end_target__name_u}_QT_MODS})
             string(TOLOWER "${qt_mod}" qt_mod_std)
-            if ("${qt_mod}" STREQUAL "printsupport")
+            if (qt_mod_std STREQUAL "printsupport")
                 if (TARGET_SYSTEM_WIN32)
                     list(APPEND local_dep_list "printsupport/windowsprintersupport")
                 endif()
             endif()
             unset(qt_mod_std)
         endforeach()
+
         set (PILE_PROJECT_QT_PLUGINS ${local_dep_list}
              CACHE INTERNAL "The list of Qt plug-ins to install and package" FORCE)
     endif()

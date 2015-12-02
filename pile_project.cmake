@@ -579,6 +579,32 @@ macro    (pileProjectInstall)
                 DESTINATION "bin/plugins/${dep_category}"
                 COMPONENT applications)
         endif()
+
+        if (WIN32)
+            if (TARGET_COMPILER_MSVC)
+                set (VCREDIST_INSTALLER_NAME "vcredist_msvc2013_x86.exe")
+                # TODO: should be imported from some system variable
+                # set (VCREDIST_INSTALLER_PATH "C:/...")
+
+                find_program(VCREDIST_INSTALLER
+                             NAMES "${VCREDIST_INSTALLER_NAME}"
+                             HINTS
+                                #"${VCREDIST_INSTALLER_PATH}"
+                                "$ENV{QTDIR}/../../vcredist"
+                             PATH_SUFFIXES BIN
+                             DOC "Visual C Redistributable package")
+                install(
+                    FILES ${VCREDIST_INSTALLER}
+                    DESTINATION "tmp"
+                    COMPONENT applications)
+                list(APPEND CPACK_NSIS_EXTRA_INSTALL_COMMANDS "
+                       ExecWait '$INSTDIR\\\\tmp\\\\${VCREDIST_INSTALLER_NAME}'
+                       ")
+                list(REMOVE_DUPLICATES CPACK_NSIS_EXTRA_INSTALL_COMMANDS)
+            endif(TARGET_COMPILER_MSVC)
+
+        endif(WIN32)
+
         unset(dep_comp_name)
         unset(dep_category)
         unset(dep_name)
@@ -604,7 +630,7 @@ macro    (pileProjectInstall)
     endif()
 
     # documents
-    pileProjectAddDocument ("Warranty, Disclaimer.rtf")
+    pileProjectAddDocument ("Warranty Disclaimer.rtf")
     pileProjectAddDocument ("Privacy Policy.rtf")
     pileProjectAddDocument ("FatCow License.txt")
     pileProjectAddDocument ("OpenSSL License.txt")

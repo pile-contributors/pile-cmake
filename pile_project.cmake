@@ -464,6 +464,42 @@ macro (pileProjectAddDocument document_to_search)
     unset (local_document_found)
 endmacro ()
 
+
+macro (pileProjectAddVcRedist redist_name)
+    unset (redist_variable)
+    unset (redist_name_base)
+    string(TOUPPER "${redist_name}" redist_variable)
+    string(REPLACE " " "_" redist_variable "${redist_variable}")
+
+    find_program(${redist_variable}
+                 NAMES "${redist_name}"
+                 HINTS
+                    "${VCREDIST_INSTALLER_PATH}"
+                    "$ENV{QTDIR}/../../vcredist"
+                 PATH_SUFFIXES BIN
+                 DOC "Visual C Redistributable package ${redist_name}")
+    get_filename_component(redist_name_base "${redist_variable}" NAME)
+    unset(quiet_args)
+    if (redist_variable MATCHES "(2012|2013)")
+        set (quiet_args "/quiet /norestart")
+    else()
+        set (quiet_args "/q")
+    endif()
+
+    install(
+        FILES ${VCREDIST_INSTALLER}
+        DESTINATION "tmp"
+        COMPONENT applications)
+    list(APPEND CPACK_NSIS_EXTRA_INSTALL_COMMANDS "
+           ExecWait '$INSTDIR\\\\tmp\\\\${redist_name_base} ${quiet_args}'
+           ")
+    list(REMOVE_DUPLICATES CPACK_NSIS_EXTRA_INSTALL_COMMANDS)
+
+    unset (redist_variable)
+    unset (redist_name_base)
+    unset (quiet_args)
+endmacro ()
+
 # Install and package project and dependencies.
 #
 # PILE_PROJECT_DEP_LIBS variable is expected to contain a list of names that
@@ -582,25 +618,15 @@ macro    (pileProjectInstall)
 
         if (WIN32)
             if (TARGET_COMPILER_MSVC)
-                set (VCREDIST_INSTALLER_NAME "vcredist_msvc2013_x86.exe")
                 # TODO: should be imported from some system variable
                 # set (VCREDIST_INSTALLER_PATH "C:/...")
 
-                find_program(VCREDIST_INSTALLER
-                             NAMES "${VCREDIST_INSTALLER_NAME}"
-                             HINTS
-                                #"${VCREDIST_INSTALLER_PATH}"
-                                "$ENV{QTDIR}/../../vcredist"
-                             PATH_SUFFIXES BIN
-                             DOC "Visual C Redistributable package")
-                install(
-                    FILES ${VCREDIST_INSTALLER}
-                    DESTINATION "tmp"
-                    COMPONENT applications)
-                list(APPEND CPACK_NSIS_EXTRA_INSTALL_COMMANDS "
-                       ExecWait '$INSTDIR\\\\tmp\\\\${VCREDIST_INSTALLER_NAME}'
-                       ")
-                list(REMOVE_DUPLICATES CPACK_NSIS_EXTRA_INSTALL_COMMANDS)
+                # set (VCREDIST_INSTALLER_NAME "vcredist_msvc2013_x86.exe")
+
+                pileProjectAddVcRedist("vcredist_msvc2013_x86")
+                if (TARGET_64BITS)
+                    pileProjectAddVcRedist("vcredist_msvc2013_x64")
+                endif(TARGET_64BITS)
             endif(TARGET_COMPILER_MSVC)
 
         endif(WIN32)

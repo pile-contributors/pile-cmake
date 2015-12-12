@@ -1,6 +1,6 @@
 
 if (NOT DEFINED COPYFILES_DEBUG_MSG)
-    set (COPYFILES_DEBUG_MSG ON)
+    set (COPYFILES_DEBUG_MSG OFF)
 endif()
 
 # ============================================================================

@@ -47,8 +47,6 @@ if (NOT DEFINED PILEPROJ_DEBUG_MSG)
     set (PILEPROJ_DEBUG_MSG OFF)
 endif()
 
-set (PILEPROJ_DEBUG_MSG ON)
-
 macro(pileProjectMessage pile_project_message__content)
     if (PILEPROJ_DEBUG_MSG)
         message(STATUS "PILE PROJECT> ${pile_project_message__content}")

@@ -476,6 +476,9 @@ macro (pileProjectAddVcRedist redist_name)
                     "$ENV{QTDIR}/../../vcredist"
                  PATH_SUFFIXES BIN
                  DOC "Visual C Redistributable package ${redist_name}")
+    if (NOT ${redist_variable})
+        message(FATAL_ERROR "Unable to find ${redist_name}")
+    endif()
     get_filename_component(redist_name_base "${redist_variable}" NAME)
     unset(quiet_args)
     if (redist_variable MATCHES "(2012|2013)")

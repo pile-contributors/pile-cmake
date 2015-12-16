@@ -243,6 +243,18 @@ macro    (pileEndTarget
                     "${${pile_end_target__name_u}_TARGET}"
                     "copy_${pile_lower}_headers")
             endforeach()
+
+            if (${pile_end_target__name_u}_OWN_HEADERS)
+                pileCreateCopyTarget (
+                    "copy_${pile_end_target__name_l}_headers"
+                    "${pile_iter} headers are being copied"
+                    "${INCLUDE_OUTPUT_PATH}"
+                    "${${pile_end_target__name_u}_OWN_HEADERS}")
+                add_dependencies(
+                    ${${pile_end_target__name_u}_TARGET}
+                    "copy_${pile_end_target__name_l}_headers")
+            endif()
+
         endif()
     endif()
 

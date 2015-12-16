@@ -47,8 +47,9 @@ macro    (pileGitStamp
             message(WARNING "Error extracting git commit from ${pile_git_stamp__path}: ${pile_git_stamp__err}")
             set(${pile_git_stamp__commit} "error")
         else()
-            STRING(REGEX REPLACE "\n" "" pile_git_stamp__temp "${pile_git_stamp__temp}")
-            STRING(REGEX REPLACE "\r" "" pile_git_stamp__temp "${pile_git_stamp__temp}")
+            STRING(REGEX REPLACE "\n" ";" pile_git_stamp__temp "${pile_git_stamp__temp}")
+            STRING(REGEX REPLACE "\r" ";" pile_git_stamp__temp "${pile_git_stamp__temp}")
+            list(GET pile_git_stamp__temp -1 pile_git_stamp__temp)
             string(STRIP "${pile_git_stamp__temp}" ${pile_git_stamp__commit})
         endif()
 
@@ -63,8 +64,9 @@ macro    (pileGitStamp
             message(WARNING "Error extracting git branch: ${pile_git_stamp__err}")
             set(${pile_git_stamp__branch} "error")
         else()
-            STRING(REGEX REPLACE "\n" "" pile_git_stamp__temp "${pile_git_stamp__temp}")
-            STRING(REGEX REPLACE "\r" "" pile_git_stamp__temp "${pile_git_stamp__temp}")
+            STRING(REGEX REPLACE "\n" ";" pile_git_stamp__temp "${pile_git_stamp__temp}")
+            STRING(REGEX REPLACE "\r" ";" pile_git_stamp__temp "${pile_git_stamp__temp}")
+            list(GET pile_git_stamp__temp -1 pile_git_stamp__temp)
             string(STRIP "${pile_git_stamp__temp}" ${pile_git_stamp__branch})
         endif()
 

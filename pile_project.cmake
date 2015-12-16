@@ -479,7 +479,8 @@ macro (pileProjectAddVcRedist redist_name)
     if (NOT ${redist_variable})
         message(FATAL_ERROR "Unable to find ${redist_name}")
     endif()
-    get_filename_component(redist_name_base "${redist_variable}" NAME)
+    pileProjectMessage ( "${redist_variable} found in ${${redist_variable}}")
+    get_filename_component(redist_name_base "${${redist_variable}}" NAME)
     unset(quiet_args)
     if (redist_variable MATCHES "(2012|2013)")
         set (quiet_args "/quiet /norestart")
@@ -488,13 +489,14 @@ macro (pileProjectAddVcRedist redist_name)
     endif()
 
     install(
-        FILES ${VCREDIST_INSTALLER}
+        FILES "${${redist_variable}}"
         DESTINATION "tmp"
         COMPONENT applications)
     list(APPEND CPACK_NSIS_EXTRA_INSTALL_COMMANDS "
            ExecWait '$INSTDIR\\\\tmp\\\\${redist_name_base} ${quiet_args}'
            ")
     list(REMOVE_DUPLICATES CPACK_NSIS_EXTRA_INSTALL_COMMANDS)
+    pileProjectMessage ( "CPACK_NSIS_EXTRA_INSTALL_COMMANDS = ${CPACK_NSIS_EXTRA_INSTALL_COMMANDS}")
 
     unset (redist_variable)
     unset (redist_name_base)
@@ -617,6 +619,7 @@ macro    (pileProjectInstall)
                 COMPONENT applications)
         endif()
 
+        pileProjectMessage ( "WIN32 = ${WIN32} TARGET_COMPILER_MSVC = ${TARGET_COMPILER_MSVC} TARGET_COMPILER = ${TARGET_COMPILER}")
         if (WIN32)
             if (TARGET_COMPILER_MSVC)
                 # TODO: should be imported from some system variable
@@ -624,9 +627,11 @@ macro    (pileProjectInstall)
 
                 # set (VCREDIST_INSTALLER_NAME "vcredist_msvc2013_x86.exe")
 
+                pileProjectMessage ( "vcredist_msvc2013_x86")
                 pileProjectAddVcRedist("vcredist_msvc2013_x86")
                 if (TARGET_64BITS)
-                    pileProjectAddVcRedist("vcredist_msvc2013_x64")
+                   pileProjectMessage ( "vcredist_msvc2013_x64")
+                   pileProjectAddVcRedist("vcredist_msvc2013_x64")
                 endif(TARGET_64BITS)
             endif(TARGET_COMPILER_MSVC)
 

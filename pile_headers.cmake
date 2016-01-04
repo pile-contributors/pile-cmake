@@ -51,7 +51,8 @@ macro    (pileCreateCopyTarget
             add_custom_command (
                 TARGET "${pile_create_copy_target__target_name}"
                 PRE_BUILD
-                COMMAND ${CMAKE_COMMAND} -E copy_if_different "${iter_h}" "${pile_create_copy_target__destination_path}/${iter_h_name}")
+                COMMAND ${CMAKE_COMMAND} -E copy_if_different "${iter_h}" "${pile_create_copy_target__destination_path}/${iter_h_name}"
+                MAIN_DEPENDENCY "${iter_h}")
             #message (STATUS "iter_h = ${iter_h}")
             #message (STATUS "dest = ${pile_create_copy_target__destination_path}/${iter_h_name}")
         endforeach (iter_h ${MSGPILE_HEADERS})
@@ -61,7 +62,8 @@ macro    (pileCreateCopyTarget
             add_custom_command (
                 TARGET "${pile_create_copy_target__target_name}"
                 PRE_BUILD
-                COMMAND ${CMAKE_COMMAND} -E copy_if_different "${iter_h}" "${pile_create_copy_target__destination_path}/${iter_h_name}")
+                COMMAND ${CMAKE_COMMAND} -E copy_if_different "${iter_h}" "${pile_create_copy_target__destination_path}/${iter_h_name}"
+                MAIN_DEPENDENCY "${iter_h}")
             #message (STATUS "iter_h = ${iter_h}")
             #message (STATUS "dest = ${pile_create_copy_target__destination_path}/${iter_h_name}")
         endforeach (iter_h ${MSGPILE_HEADERS})

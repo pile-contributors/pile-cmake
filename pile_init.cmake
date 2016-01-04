@@ -389,7 +389,7 @@ endmacro ()
 
 # Set common characteristics in one call
 #
-# See individual macros for variables and behaviour.
+# See individual macros for variables and behavior.
 macro    (pileSetCommon
           pile_set_common__name
           pile_set_common__version

@@ -216,7 +216,7 @@ macro    (pileEndTarget
         TARGETS "${${pile_end_target__name_u}_TARGET}"
         ARCHIVE
             DESTINATION lib
-            COMPONENT applications
+            COMPONENT archives
         LIBRARY
             DESTINATION lib
             COMPONENT applications

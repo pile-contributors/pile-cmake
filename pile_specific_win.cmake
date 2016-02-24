@@ -61,4 +61,63 @@ endmacro(pileMsVcNoDeprecation)
 
 # ============================================================================
 
+if ("${CMAKE_SIZEOF_VOID_P}" STREQUAL "4")
+    set(SIGNTOOL_PROGRAM_SUF "x86")
+    set(SIGNTOOL_PROGRAM_HINT
+        "$ENV{ProgramFiles}/Windows Kits/10"
+        "$ENV{ProgramFiles}/Windows Kits/8.1")
+else()
+    set(SIGNTOOL_PROGRAM_SUF "x64")
+    set(SIGNTOOL_PROGRAM_HINT
+        "$ENV{ProgramW6432}/Windows Kits/10"
+        "$ENV{ProgramW6432}/Windows Kits/8.1"
+        "$ENV{ProgramFiles}/Windows Kits/10"
+        "$ENV{ProgramFiles}/Windows Kits/8.1")
+endif()
 
+find_program(SIGNTOOL_PROGRAM signtool
+    HINTS ${SIGNTOOL_PROGRAM_HINT} ENV SIGNTOOL_PROGRAM_PATH
+    PATH_SUFFIXES "bin/${SIGNTOOL_PROGRAM_SUF}"
+    DOC "Tool used for signing the binaries")
+
+set(SIGNTOOL_CERTIFICATE "$ENV{SIGNTOOL_CERTIFICATE}"
+    CACHE PATH "The path towards the certificate used for signing the binaries")
+
+set(SIGNTOOL_CERT_PASS "$ENV{SIGNTOOL_CERT_PASS}"
+    CACHE STRING "The password for the certificate used for signing the binaries")
+
+set(SIGNTOOL_ENABLED ON
+    CACHE BOOL "Are we going to sign binaries or not?")
+
+if (NOT SIGNTOOL_PROGRAM)
+    message(STATUS "Binaries will not be signed because signtool was not found")
+    set(SIGNTOOL_ENABLED OFF
+        CACHE BOOL "Are we going to sign binaries or not?" FORCE)
+elseif (NOT SIGNTOOL_CERT_PASS)
+    message(STATUS "Binaries will not be signed because a certificate was not provided")
+    set(SIGNTOOL_ENABLED OFF
+        CACHE BOOL "Are we going to sign binaries or not?" FORCE)
+elseif (NOT SIGNTOOL_CERT_PASS)
+    message(STATUS "Binaries will not be signed because a password was not provided")
+    set(SIGNTOOL_ENABLED OFF
+        CACHE BOOL "Are we going to sign binaries or not?" FORCE)
+endif()
+
+if (SIGNTOOL_ENABLED)
+    message(STATUS "Binaries will be signed using ${SIGNTOOL_CERTIFICATE}")
+endif()
+
+
+macro (pileSignBinary pile_sign_binary__target)
+    if (SIGNTOOL_ENABLED)
+        add_custom_command(TARGET ${pile_sign_binary__target}
+                           POST_BUILD
+                           COMMAND
+                              "${SIGNTOOL_PROGRAM}" sign
+                                /t http://timestamp.digicert.com
+                                /f "${SIGNTOOL_CERTIFICATE}"
+                                /p ${SIGNTOOL_CERT_PASS}
+                                $<TARGET_FILE:${pile_sign_binary__target}>
+                           COMMENT "Target ${pile_sign_binary__target} is being signed")
+    endif()
+endmacro()

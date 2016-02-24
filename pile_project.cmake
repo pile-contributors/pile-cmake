@@ -512,6 +512,15 @@ endmacro ()
 #
 macro    (pileProjectInstall)
 
+    # Make sure internal dependencies are satisfied
+    foreach(dep_lib ${PILE_PROJECT_DEP_LIBS})
+        unset(dep_lib_u)
+        string(TOUPPER "${dep_lib}" dep_lib_u)
+        if (dep_lib_u STREQUAL "MULTIMEDIA")
+            list(APPEND PILE_PROJECT_DEP_LIBS "Network")
+        endif()
+    endforeach()
+
     # dynamic libraries to install
     list(REMOVE_DUPLICATES PILE_PROJECT_DEP_LIBS)
     foreach(dep_lib ${PILE_PROJECT_DEP_LIBS})

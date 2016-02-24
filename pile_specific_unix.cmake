@@ -14,3 +14,6 @@
 #    include(pile_support)
 #
 # ============================================================================
+macro (pileSignBinary pile_sign_binary__target)
+
+endmacro()

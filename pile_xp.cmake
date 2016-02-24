@@ -52,7 +52,7 @@ ENDIF (MSVC)
 macro (FixForXP
        FIX_FOR_XP__TARGET_NAME)
 
-    cuttilesLog( "FixForXP patches ${FIX_FOR_XP__TARGET_NAME}   $<TARGET_FILE:${FIX_FOR_XP__TARGET_NAME}>")
+    message (STATUS "FixForXP patches ${FIX_FOR_XP__TARGET_NAME}   $<TARGET_FILE:${FIX_FOR_XP__TARGET_NAME}>")
     if (NOT EDIT_BIN_PROG)
         message (FATAL_ERROR "editbin was not found; ${FIX_FOR_XP__TARGET_NAME} cannot be patched")
     elseif (MSVC)

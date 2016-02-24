@@ -169,9 +169,11 @@ macro    (pileEndTarget
                 COMPONENT applications)
             endif()
         endif()
+        pileSignBinary("${${pile_end_target__name_u}_TARGET}")
     elseif ("${pile_end_target__kind}" STREQUAL "shared")
         add_library("${${pile_end_target__name_u}_TARGET}" SHARED
             ${${pile_end_target__name_u}_ALL_SRCS})
+        pileSignBinary("${${pile_end_target__name_u}_TARGET}")
     else ()
         add_library("${${pile_end_target__name_u}_TARGET}" STATIC
             ${${pile_end_target__name_u}_ALL_SRCS})
@@ -212,22 +214,35 @@ macro    (pileEndTarget
     endif()
 
     # what to install where
+    if (NOT ${pile_end_target__name_u}_INSTALL_LIB)
+        set (${pile_end_target__name_u}_INSTALL_LIB lib)
+    endif()
+    if (NOT ${pile_end_target__name_u}_INSTALL_ARCH)
+        set (${pile_end_target__name_u}_INSTALL_ARCH lib)
+    endif()
+    if (NOT ${pile_end_target__name_u}_INSTALL_BIN)
+        set (${pile_end_target__name_u}_INSTALL_BIN bin)
+    endif()
+    if (NOT ${pile_end_target__name_u}_INSTALL_INC)
+        set (${pile_end_target__name_u}_INSTALL_INC include)
+    endif()
+
     install(
         TARGETS "${${pile_end_target__name_u}_TARGET}"
         ARCHIVE
-            DESTINATION lib
+            DESTINATION ${${pile_end_target__name_u}_INSTALL_ARCH}
             COMPONENT archives
         LIBRARY
-            DESTINATION lib
+            DESTINATION ${${pile_end_target__name_u}_INSTALL_LIB}
             COMPONENT applications
         RUNTIME
-            DESTINATION bin
+            DESTINATION ${${pile_end_target__name_u}_INSTALL_BIN}
             COMPONENT applications)
 
     if (${pile_end_target__name_u}_HEADERS)
         install(
             FILES ${${pile_end_target__name_u}_HEADERS}
-            DESTINATION include
+            DESTINATION ${${pile_end_target__name_u}_INSTALL_INC}
             COMPONENT headers)
         if (pile_end_target__copy_headers)
             pileCreateCopyTargetTarget("${pile_end_target__name}")

@@ -45,7 +45,7 @@ macro    (pilePrintVars)
     set (pile_print_vars__argn ${ARGN})
 
     # load optional name pattern
-    set(pile_print_vars__pattern )
+    unset(pile_print_vars__pattern)
     if (pile_print_vars__argn)
         list(GET pile_print_vars__argn 0 pile_print_vars__pattern)
     endif()

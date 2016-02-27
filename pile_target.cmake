@@ -136,6 +136,20 @@ macro    (pileEndTarget
             ${pile_end_target__temp_list})
     endif()
 
+    # install components
+    if (${pile_end_target__name_u}_COMP_BIN)
+        set(${pile_end_target__name_u}_COMP_BIN "applications")
+    endif()
+    if (${pile_end_target__name_u}_COMP_ARCH)
+        set(${pile_end_target__name_u}_COMP_ARCH "archives")
+    endif()
+    if (${pile_end_target__name_u}_COMP_LIB)
+        set(${pile_end_target__name_u}_COMP_LIB "applications")
+    endif()
+    if (${pile_end_target__name_u}_COMP_INC)
+        set(${pile_end_target__name_u}_COMP_INC "headers")
+    endif()
+
     # remove duplicates from lists
     if (${pile_end_target__name_u}_SOURCES)
         list(REMOVE_DUPLICATES ${pile_end_target__name_u}_SOURCES)
@@ -166,7 +180,7 @@ macro    (pileEndTarget
             install(
                 FILES "${EXECUTABLE_OUTPUT_PATH}/${${pile_end_target__name_u}_TARGET}.exe.manifest"
                 DESTINATION bin
-                COMPONENT applications)
+                COMPONENT ${pile_end_target__name_u}_COMP_BIN)
             endif()
         endif()
         pileSignBinary("${${pile_end_target__name_u}_TARGET}")
@@ -231,19 +245,19 @@ macro    (pileEndTarget
         TARGETS "${${pile_end_target__name_u}_TARGET}"
         ARCHIVE
             DESTINATION ${${pile_end_target__name_u}_INSTALL_ARCH}
-            COMPONENT archives
+            COMPONENT ${pile_end_target__name_u}_COMP_ARCH
         LIBRARY
             DESTINATION ${${pile_end_target__name_u}_INSTALL_LIB}
-            COMPONENT applications
+            COMPONENT ${pile_end_target__name_u}_COMP_LIB
         RUNTIME
             DESTINATION ${${pile_end_target__name_u}_INSTALL_BIN}
-            COMPONENT applications)
+            COMPONENT ${pile_end_target__name_u}_COMP_BIN)
 
     if (${pile_end_target__name_u}_HEADERS)
         install(
             FILES ${${pile_end_target__name_u}_HEADERS}
             DESTINATION ${${pile_end_target__name_u}_INSTALL_INC}
-            COMPONENT headers)
+            COMPONENT ${pile_end_target__name_u}_COMP_INC)
         if (pile_end_target__copy_headers)
             pileCreateCopyTargetTarget("${pile_end_target__name}")
             add_dependencies(
@@ -361,17 +375,26 @@ macro    (pileTargetSubPiles)
         unset(pile_target_upper)
         string(TOUPPER  "${THIS_TARGET}" pile_target_upper)
 
-
         pileInclude (${pile_iter})
         pileCallByName("${pile_lower}Init" PILE_SHARED)
         list(APPEND ${pile_target_upper}_SOURCES ${${pile_upper}_SOURCES})
         list(APPEND ${pile_target_upper}_HEADERS ${${pile_upper}_HEADERS})
+        list(APPEND ${pile_target_upper}_UIS ${${pile_upper}_UIS})
         list(APPEND ${pile_target_upper}_QT_MODS ${${pile_upper}_QT_MODS})
         if (${pile_target_upper}_QT_MODS)
             list(REMOVE_DUPLICATES ${pile_target_upper}_QT_MODS)
         endif()
         pileCopyHeaders("${pile_iter}")
     endforeach()
+    if (${pile_target_upper}_SOURCES)
+        list (REMOVE_DUPLICATES ${pile_target_upper}_SOURCES)
+    endif()
+    if (${pile_target_upper}_HEADERS)
+        list (REMOVE_DUPLICATES ${pile_target_upper}_HEADERS)
+    endif()
+    if (${pile_target_upper}_UIS)
+        list (REMOVE_DUPLICATES ${pile_target_upper}_UIS)
+    endif()
 
 endmacro()
 # ============================================================================

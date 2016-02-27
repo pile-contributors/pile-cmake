@@ -90,15 +90,21 @@ set(SIGNTOOL_ENABLED ON
     CACHE BOOL "Are we going to sign binaries or not?")
 
 if (NOT SIGNTOOL_PROGRAM)
-    message(STATUS "Binaries will not be signed because signtool was not found")
+    if (NOT "${CMAKE_BUILD_TYPE}" STREQUAL "Debug")
+        message(STATUS "Binaries will not be signed because signtool was not found")
+    endif()
     set(SIGNTOOL_ENABLED OFF
         CACHE BOOL "Are we going to sign binaries or not?" FORCE)
 elseif (NOT SIGNTOOL_CERT_PASS)
-    message(STATUS "Binaries will not be signed because a certificate was not provided")
+    if (NOT "${CMAKE_BUILD_TYPE}" STREQUAL "Debug")
+        message(STATUS "Binaries will not be signed because a certificate was not provided")
+    endif()
     set(SIGNTOOL_ENABLED OFF
         CACHE BOOL "Are we going to sign binaries or not?" FORCE)
 elseif (NOT SIGNTOOL_CERT_PASS)
-    message(STATUS "Binaries will not be signed because a password was not provided")
+    if (NOT "${CMAKE_BUILD_TYPE}" STREQUAL "Debug")
+        message(STATUS "Binaries will not be signed because a password was not provided")
+    endif()
     set(SIGNTOOL_ENABLED OFF
         CACHE BOOL "Are we going to sign binaries or not?" FORCE)
 endif()

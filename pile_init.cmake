@@ -2,36 +2,36 @@
 # ============================================================================
 
 # Set dependencies for a pile
-# 
+#
 # The list can be empty. Basically the macro creates a variable
 # <PILE>_DEPENDENCIES and, if debugging is enabled, informs the
 # user about them
 macro    (pileSetDependencies
           pile_set_dependencies__name
           pile_set_dependencies__dependencies)
-          
+
     string (TOUPPER ${pile_set_dependencies__name} pile_set_dependencies__name_u)
-	
+
     set (${pile_set_dependencies__name_u}_DEPENDENCIES
           ${pile_set_dependencies__dependencies} CACHE STRING "piles that current pile depends on")
     if ( ${pile_set_dependencies__name_u}_DEPENDENCIES)
-		pileDebugMessage (
-			"${pile_set_dependencies__name}"
-			"dependencies: ${pile_set_dependencies__dependencies}")
-	else ()
-		pileDebugMessage (
-			"${pile_set_dependencies__name}"
-			"no dependencies")
-	endif()
+        pileDebugMessage (
+            "${pile_set_dependencies__name}"
+            "dependencies: ${pile_set_dependencies__dependencies}")
+    else ()
+        pileDebugMessage (
+            "${pile_set_dependencies__name}"
+            "no dependencies")
+    endif()
 endmacro ()
 
 # ============================================================================
 
 # Set the category for a pile
 #
-# The list can be empty; if there are more than one items in 
+# The list can be empty; if there are more than one items in
 # the list they are interpreted to be components of a path.
-# 
+#
 # A pile has a single category and multiple tags. All the
 # components of the category list are added as tags.
 # pileSetCategory("p1" "a;b;c") is thus interpreted like
@@ -42,40 +42,40 @@ endmacro ()
 macro    (pileSetCategory
           pile_set_category__name
           pile_set_category__category)
-    
+
     string (TOUPPER ${pile_set_category__name} pile_set_category__name_u)
-    
-	# set the variable for this pile
-	set (${pile_set_category__name_u}_CATEGORY
+
+    # set the variable for this pile
+    set (${pile_set_category__name_u}_CATEGORY
           ${pile_set_category__category})
     pileDebugMessage (
-		"${pile_set_category__name}"
+        "${pile_set_category__name}"
         "category: ${pile_set_category__category}")
-    list (APPEND ${pile_set_tags__name_u}_TAGS 
+    list (APPEND ${pile_set_tags__name_u}_TAGS
         ${pile_set_category__category})
     list (REMOVE_DUPLICATES
         ${pile_set_tags__name_u}_TAGS)
-    
+
 endmacro ()
 
 # ============================================================================
 
 # Set tags for a pile
-# 
+#
 # The list can be empty.
 #
 # The macro defines or changes <PILE>_TAGS variable.
 macro    (pileSetTags
           pile_set_tags__name
           pile_set_tags__tags)
-          
+
     string (TOUPPER ${pile_set_tags__name} pile_set_tags__name_u)
-    list (APPEND ${pile_set_tags__name_u}_TAGS 
+    list (APPEND ${pile_set_tags__name_u}_TAGS
         ${pile_set_tags__tags})
-    list (REMOVE_DUPLICATES 
+    list (REMOVE_DUPLICATES
         ${pile_set_tags__name_u}_TAGS  )
     pileDebugMessage (
-		"${pile_set_tags__name}"
+        "${pile_set_tags__name}"
         "tags: ${pile_set_tags__tags}")
 endmacro ()
 
@@ -94,53 +94,53 @@ endmacro ()
 macro    (pileSetVersion
           pile_set_version__name
           pile_set_version__value)
-		  
-    string (TOUPPER 
-	    ${pile_set_version__name} 
-		pile_set_version__name_u)
 
-	# input may not be a variable name and LIST expects one
-	set (pile_set_version__value_var "${pile_set_version__value}")
-	list (GET pile_set_version__value_var 0 
-		${pile_set_version__name_u}_MAJOR_VERSION)
-	list (GET pile_set_version__value_var 1
-		${pile_set_version__name_u}_MINOR_VERSION)
-	list (GET pile_set_version__value_var 2 
-		${pile_set_version__name_u}_PATCH_VERSION)
-	list (GET pile_set_version__value_var 3
-		pile_set_version__debug_decider)
-	set (${pile_set_version__name_u}_VERSION_STRING
-			"${${pile_set_version__name_u}_MAJOR_VERSION}.${${pile_set_version__name_u}_MINOR_VERSION}.${${pile_set_version__name_u}_PATCH_VERSION}")
-	
+    string (TOUPPER
+        ${pile_set_version__name}
+        pile_set_version__name_u)
+
+    # input may not be a variable name and LIST expects one
+    set (pile_set_version__value_var "${pile_set_version__value}")
+    list (GET pile_set_version__value_var 0
+        ${pile_set_version__name_u}_MAJOR_VERSION)
+    list (GET pile_set_version__value_var 1
+        ${pile_set_version__name_u}_MINOR_VERSION)
+    list (GET pile_set_version__value_var 2
+        ${pile_set_version__name_u}_PATCH_VERSION)
+    list (GET pile_set_version__value_var 3
+        pile_set_version__debug_decider)
+    set (${pile_set_version__name_u}_VERSION_STRING
+            "${${pile_set_version__name_u}_MAJOR_VERSION}.${${pile_set_version__name_u}_MINOR_VERSION}.${${pile_set_version__name_u}_PATCH_VERSION}")
+
     string(TIMESTAMP
         ${pile_set_version__name_u}_BUILD_TIME
         UTC)
 
     pileDebugMessage (
-		"${pile_set_version__name}"
+        "${pile_set_version__name}"
         "version: ${${pile_set_version__name_u}_VERSION_STRING} build on: ${${pile_set_version__name_u}_BUILD_TIME}")
 
-	if (pile_set_version__debug_decider)
-		string (TOLOWER
-			"${pile_set_version__debug_decider}"
-			pile_set_version__debug_decider)
-		if (${pile_set_version__debug_decider} STREQUAL "d")
-			set (${pile_set_version__name_u}_DEBUG ON)
-			set (${pile_set_version__name_u}_RELEASE OFF)
-		elseif (${pile_set_version__debug_decider} STREQUAL "dbg")
-			set (${pile_set_version__name_u}_DEBUG ON)
-			set (${pile_set_version__name_u}_RELEASE OFF)
-		elseif (${pile_set_version__debug_decider} STREQUAL "debug")
-			set (${pile_set_version__name_u}_DEBUG ON)
-			set (${pile_set_version__name_u}_RELEASE OFF)
-		else()
-			set (${pile_set_version__name_u}_DEBUG ON)
-			set (${pile_set_version__name_u}_RELEASE OFF)
-		endif()
-	else ()
-		set (${pile_set_version__name_u}_DEBUG OFF)
-		set (${pile_set_version__name_u}_RELEASE ON)
-	endif()
+    if (pile_set_version__debug_decider)
+        string (TOLOWER
+            "${pile_set_version__debug_decider}"
+            pile_set_version__debug_decider)
+        if (${pile_set_version__debug_decider} STREQUAL "d")
+            set (${pile_set_version__name_u}_DEBUG ON)
+            set (${pile_set_version__name_u}_RELEASE OFF)
+        elseif (${pile_set_version__debug_decider} STREQUAL "dbg")
+            set (${pile_set_version__name_u}_DEBUG ON)
+            set (${pile_set_version__name_u}_RELEASE OFF)
+        elseif (${pile_set_version__debug_decider} STREQUAL "debug")
+            set (${pile_set_version__name_u}_DEBUG ON)
+            set (${pile_set_version__name_u}_RELEASE OFF)
+        else()
+            set (${pile_set_version__name_u}_DEBUG ON)
+            set (${pile_set_version__name_u}_RELEASE OFF)
+        endif()
+    else ()
+        set (${pile_set_version__name_u}_DEBUG OFF)
+        set (${pile_set_version__name_u}_RELEASE ON)
+    endif()
 
 
 
@@ -180,11 +180,11 @@ macro    (pileCreateLib
 
     set (pile_create_lib__libs )
     foreach(pile_create_lib__dep_pile ${${pile_create_lib__name_u}_DEPENDENCIES})
-		string (TOUPPER
-			${pile_create_lib__dep_pile}
-			pile_create_lib__dep_pile_u)
-		pileDebugMessage (
-			"${pile_create_lib__name}"
+        string (TOUPPER
+            ${pile_create_lib__dep_pile}
+            pile_create_lib__dep_pile_u)
+        pileDebugMessage (
+            "${pile_create_lib__name}"
             "Is ${pile_create_lib__dep_pile} a library?")
         if (${pile_create_lib__dep_pile_u}_LIBRARY)
             list(APPEND pile_create_lib__libs ${${pile_create_lib__dep_pile_u}_LIBRARY})
@@ -210,23 +210,23 @@ macro    (pileSetMode
           pile_set_mode__name
           pile_set_mode__mode)
 
-	string (TOUPPER 
-	    ${pile_set_mode__name} 
-		pile_set_mode__name_u)
+    string (TOUPPER
+        ${pile_set_mode__name}
+        pile_set_mode__name_u)
     string (TOLOWER
         ${pile_set_mode__name}
         pile_set_mode__name_l)
 
-	if ("${pile_set_mode__mode}" STREQUAL "")
-		set (${pile_set_mode__name_u}_PILE_MODE
-			"PILE")
-	else ()
-		string (TOUPPER 
-			"${pile_set_mode__mode}"
-			${pile_set_mode__name_u}_PILE_MODE)
-	endif()
-	
-	if ("${${pile_set_mode__name_u}_PILE_MODE}" STREQUAL "STATIC")
+    if ("${pile_set_mode__mode}" STREQUAL "")
+        set (${pile_set_mode__name_u}_PILE_MODE
+            "PILE")
+    else ()
+        string (TOUPPER
+            "${pile_set_mode__mode}"
+            ${pile_set_mode__name_u}_PILE_MODE)
+    endif()
+
+    if ("${${pile_set_mode__name_u}_PILE_MODE}" STREQUAL "STATIC")
         set (${pile_set_mode__name_u}_STATIC ON)
         set (${pile_set_mode__name_u}_PILE   OFF)
         set (${pile_set_mode__name_u}_SHARED OFF)
@@ -247,7 +247,7 @@ macro    (pileSetMode
         set (${pile_set_mode__name_u}_SHARED ON)
         set (${pile_set_mode__name_u}_LIBRARY "${pile_set_mode__name_l}")
     else ()
-		message (FATAL_ERROR "${pile_set_mode__name}: Unknown pile mode - ${${pile_set_mode__name_u}_PILE_MODE}")
+        message (FATAL_ERROR "${pile_set_mode__name}: Unknown pile mode - ${${pile_set_mode__name_u}_PILE_MODE}")
     endif ()
     set (${pile_set_mode__name_u}_LIBRARY
         ${${pile_set_mode__name_u}_LIBRARY}
@@ -297,43 +297,43 @@ endmacro ()
 macro    (pileConfigFile
           pile_config_file__name)
 
-	string (TOUPPER 
-	    ${pile_config_file__name} 
-		pile_config_file__name_u)
-	string (TOLOWER 
-	    ${pile_config_file__name} 
-		pile_config_file__name_l)
+    string (TOUPPER
+        ${pile_config_file__name}
+        pile_config_file__name_u)
+    string (TOLOWER
+        ${pile_config_file__name}
+        pile_config_file__name_l)
 
-	if (NOT ${pile_config_file__name_u}_BINARY_DIR)
-		message (FATAL_ERROR "${pile_config_file__name_u}_BINARY_DIR must be set before calling pileConfigFile(), for example by calling pileInclude()")
-	endif()
-	if (NOT ${pile_config_file__name_u}_SOURCE_DIR)
-		message (FATAL_ERROR "${pile_config_file__name_u}_SOURCE_DIR must be set before calling pileConfigFile(), for example by calling pileInclude()")
-	endif()	
-	
+    if (NOT ${pile_config_file__name_u}_BINARY_DIR)
+        message (FATAL_ERROR "${pile_config_file__name_u}_BINARY_DIR must be set before calling pileConfigFile(), for example by calling pileInclude()")
+    endif()
+    if (NOT ${pile_config_file__name_u}_SOURCE_DIR)
+        message (FATAL_ERROR "${pile_config_file__name_u}_SOURCE_DIR must be set before calling pileConfigFile(), for example by calling pileInclude()")
+    endif()
+
     # create a configuration file for the project
-	set (${pile_config_file__name_u}_CONFIG_FILE
-		"${${pile_config_file__name_u}_BINARY_DIR}/${pile_config_file__name_l}-config.h")
-	set (${pile_config_file__name_u}_CONFIG_FILE_IN
-		"${${pile_config_file__name_u}_SOURCE_DIR}/${pile_config_file__name_l}-config.h.in")
-		
+    set (${pile_config_file__name_u}_CONFIG_FILE
+        "${${pile_config_file__name_u}_BINARY_DIR}/${pile_config_file__name_l}-config.h")
+    set (${pile_config_file__name_u}_CONFIG_FILE_IN
+        "${${pile_config_file__name_u}_SOURCE_DIR}/${pile_config_file__name_l}-config.h.in")
+
     configure_file (
         "${${pile_config_file__name_u}_CONFIG_FILE_IN}"
-		"${${pile_config_file__name_u}_CONFIG_FILE}")
+        "${${pile_config_file__name_u}_CONFIG_FILE}")
     include_directories (${${pile_config_file__name_u}_BINARY_DIR})
-	
+
     list (APPEND
         ${pile_set_sources__name_u}_HEADERS
         "${${pile_set_sources__name_u}_CONFIG_FILE}")
     list (REMOVE_DUPLICATES
         ${pile_set_sources__name_u}_HEADERS)
 
-	pileDebugMessage (
-		"${pile_config_file__name}"
-		"config file template: ${${pile_config_file__name_u}_CONFIG_FILE_IN}")
-	pileDebugMessage (
-		"${pile_config_file__name}"
-		"config file: ${${pile_config_file__name_u}_CONFIG_FILE}")
+    pileDebugMessage (
+        "${pile_config_file__name}"
+        "config file template: ${${pile_config_file__name_u}_CONFIG_FILE_IN}")
+    pileDebugMessage (
+        "${pile_config_file__name}"
+        "config file: ${${pile_config_file__name_u}_CONFIG_FILE}")
 
 endmacro ()
 
@@ -344,44 +344,69 @@ endmacro ()
 macro    (pileSetSources
           pile_set_sources__name
           pile_set_sources__headers
-		  pile_set_sources__sources)
+          pile_set_sources__sources)
 
-	string (TOUPPER 
-	    "${pile_set_sources__name}"
+    set (pile_set_sources__argn ${ARGN})
+
+    # load optional name pattern
+    unset(pile_set_sources__uis)
+    if (pile_set_sources__argn)
+        list(GET pile_set_sources__argn 0 pile_set_sources__uis)
+    endif()
+
+    string (TOUPPER
+        "${pile_set_sources__name}"
         pile_set_sources__name_u)
-	string (TOLOWER 
-	    "${pile_set_sources__name}"
+    string (TOLOWER
+        "${pile_set_sources__name}"
         pile_set_sources__name_l)
 
     set (pile_set_sources__hdr "${${pile_set_sources__name_u}_CONFIG_FILE}")
-	foreach(pile_set_sources__iter ${pile_set_sources__headers})
-		list (APPEND 
-			pile_set_sources__hdr 
+    foreach(pile_set_sources__iter ${pile_set_sources__headers})
+        list (APPEND
+            pile_set_sources__hdr
             "${${pile_set_sources__name_u}_SOURCE_DIR}/${pile_set_sources__iter}")
-	endforeach()
-	list (REMOVE_DUPLICATES 
-		pile_set_sources__hdr)
-	
-	set (pile_set_sources__src )
-	foreach(pile_set_sources__iter ${pile_set_sources__sources})
-		list (APPEND 
-			pile_set_sources__src 
+    endforeach()
+    if (pile_set_sources__hdr)
+        list (REMOVE_DUPLICATES pile_set_sources__hdr)
+    endif()
+
+    unset (pile_set_sources__src )
+    foreach(pile_set_sources__iter ${pile_set_sources__sources})
+        list (APPEND
+            pile_set_sources__src
             "${${pile_set_sources__name_u}_SOURCE_DIR}/${pile_set_sources__iter}")
-	endforeach()
-	list (REMOVE_DUPLICATES 
-		pile_set_sources__src)
-	
+    endforeach()
+    if (pile_set_sources__src)
+        list (REMOVE_DUPLICATES pile_set_sources__src)
+    endif()
+
+    unset (pile_set_sources__ui)
+    foreach(pile_set_sources__iter ${pile_set_sources__uis})
+        list (APPEND
+            pile_set_sources__ui
+            "${${pile_set_sources__name_u}_SOURCE_DIR}/${pile_set_sources__iter}")
+    endforeach()
+    if (pile_set_sources__ui)
+        list (REMOVE_DUPLICATES pile_set_sources__ui)
+    endif()
+
     set (${pile_set_sources__name_u}_HEADERS
         ${pile_set_sources__hdr})
     set (${pile_set_sources__name_u}_SOURCES
         ${pile_set_sources__src})
-	
-	pileDebugMessage (
-		"${pile_set_sources__name}"
-		"sources: ${pile_set_sources__src}")
-	pileDebugMessage (
-		"${pile_set_sources__name}"
-		"headers: ${pile_set_sources__hdr}")
+    set (${pile_set_sources__name_u}_UIS
+        ${pile_set_sources__ui})
+
+    pileDebugMessage (
+        "${pile_set_sources__name}"
+        "sources: ${pile_set_sources__src}")
+    pileDebugMessage (
+        "${pile_set_sources__name}"
+        "headers: ${pile_set_sources__hdr}")
+    pileDebugMessage (
+        "${pile_set_sources__name}"
+        "uis: ${pile_set_sources__ui}")
 
 endmacro ()
 

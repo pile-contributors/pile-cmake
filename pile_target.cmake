@@ -137,18 +137,19 @@ macro    (pileEndTarget
     endif()
 
     # install components
-    if (${pile_end_target__name_u}_COMP_BIN)
+    if (NOT ${pile_end_target__name_u}_COMP_BIN)
         set(${pile_end_target__name_u}_COMP_BIN "applications")
     endif()
-    if (${pile_end_target__name_u}_COMP_ARCH)
+    if (NOT ${pile_end_target__name_u}_COMP_ARCH)
         set(${pile_end_target__name_u}_COMP_ARCH "archives")
     endif()
-    if (${pile_end_target__name_u}_COMP_LIB)
+    if (NOT ${pile_end_target__name_u}_COMP_LIB)
         set(${pile_end_target__name_u}_COMP_LIB "applications")
     endif()
-    if (${pile_end_target__name_u}_COMP_INC)
+    if (NOT ${pile_end_target__name_u}_COMP_INC)
         set(${pile_end_target__name_u}_COMP_INC "headers")
     endif()
+
 
     # remove duplicates from lists
     if (${pile_end_target__name_u}_SOURCES)
@@ -180,7 +181,7 @@ macro    (pileEndTarget
             install(
                 FILES "${EXECUTABLE_OUTPUT_PATH}/${${pile_end_target__name_u}_TARGET}.exe.manifest"
                 DESTINATION bin
-                COMPONENT ${pile_end_target__name_u}_COMP_BIN)
+                COMPONENT ${${pile_end_target__name_u}_COMP_BIN})
             endif()
         endif()
         pileSignBinary("${${pile_end_target__name_u}_TARGET}")
@@ -241,23 +242,30 @@ macro    (pileEndTarget
         set (${pile_end_target__name_u}_INSTALL_INC include)
     endif()
 
+
+    message(STATUS "bin component of target ${pile_end_target__name_u} is ${${pile_end_target__name_u}_COMP_BIN}")
+    message(STATUS "arch component of target ${pile_end_target__name_u} is ${${pile_end_target__name_u}_COMP_ARCH}")
+    message(STATUS "lib component of target ${pile_end_target__name_u} is ${${pile_end_target__name_u}_COMP_LIB}")
+    message(STATUS "inc component of target ${pile_end_target__name_u} is ${${pile_end_target__name_u}_COMP_INC}")
+
+
     install(
         TARGETS "${${pile_end_target__name_u}_TARGET}"
         ARCHIVE
             DESTINATION ${${pile_end_target__name_u}_INSTALL_ARCH}
-            COMPONENT ${pile_end_target__name_u}_COMP_ARCH
+            COMPONENT ${${pile_end_target__name_u}_COMP_ARCH}
         LIBRARY
             DESTINATION ${${pile_end_target__name_u}_INSTALL_LIB}
-            COMPONENT ${pile_end_target__name_u}_COMP_LIB
+            COMPONENT ${${pile_end_target__name_u}_COMP_LIB}
         RUNTIME
             DESTINATION ${${pile_end_target__name_u}_INSTALL_BIN}
-            COMPONENT ${pile_end_target__name_u}_COMP_BIN)
+            COMPONENT ${${pile_end_target__name_u}_COMP_BIN})
 
     if (${pile_end_target__name_u}_HEADERS)
         install(
             FILES ${${pile_end_target__name_u}_HEADERS}
             DESTINATION ${${pile_end_target__name_u}_INSTALL_INC}
-            COMPONENT ${pile_end_target__name_u}_COMP_INC)
+            COMPONENT ${${pile_end_target__name_u}_COMP_INC})
         if (pile_end_target__copy_headers)
             pileCreateCopyTargetTarget("${pile_end_target__name}")
             add_dependencies(

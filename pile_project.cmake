@@ -190,6 +190,11 @@ macro    (pileProject
     set (PILE_PROJECT_QT_PLUGINS
          CACHE INTERNAL "The list of Qt plug-ins to install and package" FORCE)
 
+    # at the start of the cmake step set this to off; appropriate module
+    # will create signed_packages target if off and reset it to ON
+    set(SIGNED_PACKAGE_TARGET_DEFINED OFF CACHE INTERNAL
+         "create a target for signed packages")
+
 endmacro ()
 
 # ============================================================================

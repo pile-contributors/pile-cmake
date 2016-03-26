@@ -351,7 +351,7 @@ macro    (pileSetSources
     # load optional name pattern
     unset(pile_set_sources__uis)
     if (pile_set_sources__argn)
-        list(GET pile_set_sources__argn 0 pile_set_sources__uis)
+        set(pile_set_sources__uis ${pile_set_sources__argn})
     endif()
 
     string (TOUPPER

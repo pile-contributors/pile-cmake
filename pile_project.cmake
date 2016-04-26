@@ -682,7 +682,9 @@ macro    (pileProjectInstall)
     pileProjectAddDocument ("OpenSSL License.txt")
     pileProjectAddDocument ("Qt License.txt")
     pileProjectAddDocument ("Qt Third Party Software Listing.txt")
-    list(REMOVE_DUPLICATES PROJECT_INSTALLED_DOCUMENTS)
+    if (PROJECT_INSTALLED_DOCUMENTS)
+        list(REMOVE_DUPLICATES PROJECT_INSTALLED_DOCUMENTS)
+    endif()
     if (PROJECT_INSTALLED_DOCUMENTS)
         install(
             FILES ${PROJECT_INSTALLED_DOCUMENTS}

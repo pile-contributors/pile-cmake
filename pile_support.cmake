@@ -2,7 +2,7 @@
 #
 # Introduction
 # ------------
-# 
+#
 # This file contains support CMake script for piles as described
 # at https://github.com/pile-contributors
 #
@@ -19,7 +19,7 @@
 #
 # All macros and variables in this file start with the string `pile_`.
 # Support variable names are all small caps with underscore
-# separating the words; arguments and internal variables 
+# separating the words; arguments and internal variables
 # start with the name of the macro.
 #
 # Macro names are camelCased, with first letter being small case.
@@ -31,7 +31,7 @@
 #
 # ============================================================================
 
-# This is a general Debug Message switch; if OFF absolutely 
+# This is a general Debug Message switch; if OFF absolutely
 # no message will be shown by  pileDebugMessage;
 # if ON then the behaviour is determined by individual pile settings
 # using <PILE>_DEBUG_MSG.
@@ -51,6 +51,10 @@ include(pile_git)
 include(pile_subdir)
 include(pile_other_helpers)
 include(pile_call_by_name)
+
+# is overridden by pile_specific_win
+set(REMOVE_DIR_CMD ${CMAKE_COMMAND} -E remove_directory
+    CACHE STRING "Command to remove a directory")
 
 # Target system specific
 if(WIN32)

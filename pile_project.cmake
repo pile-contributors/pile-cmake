@@ -457,9 +457,11 @@ endmacro ()
 # ============================================================================
 
 macro (pileProjectAddDocument document_to_search)
-    unset (local_document_found)
-    find_file(local_document_found "${document_to_search}"
+    unset (local_document_found CACHE)
+    find_file(local_document_found
+              NAMES "${document_to_search}"
               HINTS "${PROJECT_SOURCE_DIR}/documents"
+              DOC "Standard ${document_to_search} from documents directory"
               NO_DEFAULT_PATHS)
     if (local_document_found)
         list (APPEND PROJECT_INSTALLED_DOCUMENTS ${local_document_found})

@@ -140,3 +140,15 @@ macro (pileSignBinary pile_sign_binary__target)
         endif()
     endif()
 endmacro()
+
+# this exists because there seems to be a bug with
+# -E remove_directory ${PLUGINS_BINARY_NATDIR}
+# the directory is not removed.
+set(REMOVE_DIR_CMD cmd /C ${CMAKE_BINARY_DIR}/remove_directory.bat
+    CACHE STRING "Command to remove a directory" FORCE)
+file(WRITE "${CMAKE_BINARY_DIR}/remove_directory.bat" "
+@echo off
+echo Removing directory %1
+rd %1 /s/q
+@echo on
+")

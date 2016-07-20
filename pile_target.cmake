@@ -243,10 +243,10 @@ macro    (pileEndTarget
     endif()
 
 
-    message(STATUS "bin component of target ${pile_end_target__name_u} is ${${pile_end_target__name_u}_COMP_BIN}")
-    message(STATUS "arch component of target ${pile_end_target__name_u} is ${${pile_end_target__name_u}_COMP_ARCH}")
-    message(STATUS "lib component of target ${pile_end_target__name_u} is ${${pile_end_target__name_u}_COMP_LIB}")
-    message(STATUS "inc component of target ${pile_end_target__name_u} is ${${pile_end_target__name_u}_COMP_INC}")
+#    message(STATUS "bin component of target ${pile_end_target__name_u} is ${${pile_end_target__name_u}_COMP_BIN}")
+#    message(STATUS "arch component of target ${pile_end_target__name_u} is ${${pile_end_target__name_u}_COMP_ARCH}")
+#    message(STATUS "lib component of target ${pile_end_target__name_u} is ${${pile_end_target__name_u}_COMP_LIB}")
+#    message(STATUS "inc component of target ${pile_end_target__name_u} is ${${pile_end_target__name_u}_COMP_INC}")
 
 
     install(

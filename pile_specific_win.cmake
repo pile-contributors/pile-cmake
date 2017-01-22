@@ -110,7 +110,18 @@ elseif (NOT SIGNTOOL_CERT_PASS)
 endif()
 
 if (SIGNTOOL_ENABLED)
-    message(STATUS "Binaries will be signed using ${SIGNTOOL_CERTIFICATE}")
+    string(TIMESTAMP _CRT_TSTAMP "%H*3600+%M*60+%S" UTC)
+    math(EXPR _CRT_TSTAMP "${_CRT_TSTAMP}")
+    if (NOT SIGNTOOL_ENABLED_MESSAGE)
+        math(EXPR SIGNTOOL_ENABLED_MESSAGE "0")
+    endif()
+    math(EXPR _CRT_TSTAMP_COMP "${_CRT_TSTAMP}-30")
+
+    if (SIGNTOOL_ENABLED_MESSAGE LESS _CRT_TSTAMP)
+        message(STATUS "Binaries will be signed using ${SIGNTOOL_CERTIFICATE}")
+        set (SIGNTOOL_ENABLED_MESSAGE ${_CRT_TSTAMP} CACHE INTERNAL "time of message" FORCE)
+    endif()
+
 endif()
 
 

@@ -193,6 +193,10 @@ macro    (pileCreateLib
         endif ()
     endforeach()
 
+    if (${pile_create_lib__dep_pile_u}_INCLUDES)
+        include_directories(${${pile_create_lib__dep_pile_u}_INCLUDES})
+    endif()
+
     pileDebugMessage (
         "${pile_create_lib__name}"
         "library pile dependencies: ${pile_create_lib__libs}")

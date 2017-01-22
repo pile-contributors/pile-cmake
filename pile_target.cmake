@@ -37,7 +37,7 @@
 #        <PILE>_HEADERS: the list of headers
 #        <PILE>_UIS: the list of UI files
 #        <PILE>_RES: the list of resource files
-#        <PILE>_LIBS: the list of libraries to link against
+#        <PILE>_LIBRARIES: the list of libraries to link against
 #        <PILE>_QT_MODS: the list of Qt modules to link against
 #        <PILE>_TARGET: the actual name of the target
 macro    (pileTarget
@@ -56,11 +56,12 @@ macro    (pileTarget
     endif()
 
     # prepare variables
+    set( ${pile_target__name_u}_INCLUDES )
     set( ${pile_target__name_u}_SOURCES )
     set( ${pile_target__name_u}_HEADERS )
     set( ${pile_target__name_u}_UIS )
     set( ${pile_target__name_u}_RES )
-    set( ${pile_target__name_u}_LIBS )
+    set( ${pile_target__name_u}_LIBRARIES )
     set( ${pile_target__name_u}_QT_MODS )
     set( ${pile_target__name_u}_SOURCE_DIR "${CMAKE_CURRENT_SOURCE_DIR}")
 
@@ -158,12 +159,17 @@ macro    (pileEndTarget
     if (${pile_end_target__name_u}_HEADERS)
         list(REMOVE_DUPLICATES ${pile_end_target__name_u}_HEADERS)
     endif()
-    if (${pile_end_target__name_u}_LIBS)
-        list(REMOVE_DUPLICATES ${pile_end_target__name_u}_LIBS)
+    if (${pile_end_target__name_u}_LIBRARIES)
+        list(REMOVE_DUPLICATES ${pile_end_target__name_u}_LIBRARIES)
     endif()
     if (${pile_end_target__name_u}_QT_MODS)
         list(REMOVE_DUPLICATES ${pile_end_target__name_u}_QT_MODS)
     endif()
+    if (${pile_end_target__name_u}_INCLUDES)
+        list(REMOVE_DUPLICATES ${pile_end_target__name_u}_INCLUDES)
+        include_directories(${${pile_end_target__name_u}_INCLUDES})
+    endif()
+
 
     # all sources used to build the target
     set( ${pile_end_target__name_u}_ALL_SRCS
@@ -195,9 +201,9 @@ macro    (pileEndTarget
     endif()
 
     # link libraries
-    if (${pile_end_target__name_u}_LIBS)
+    if (${pile_end_target__name_u}_LIBRARIES)
         target_link_libraries( ${${pile_end_target__name_u}_TARGET}
-            ${${pile_end_target__name_u}_LIBS})
+            ${${pile_end_target__name_u}_LIBRARIES})
     endif()
 
     # link / use Qt modules
@@ -207,8 +213,8 @@ macro    (pileEndTarget
 
         # add modules to list of files to be installed
         unset(local_dep_list)
-        set (local_dep_list ${PILE_PROJECT_DEP_LIBS} ${${pile_end_target__name_u}_QT_MODS})
-        set (PILE_PROJECT_DEP_LIBS ${local_dep_list}
+        set (local_dep_list ${PILE_PROJECT_DEP_LIBRARIES} ${${pile_end_target__name_u}_QT_MODS})
+        set (PILE_PROJECT_DEP_LIBRARIES ${local_dep_list}
              CACHE INTERNAL "The list of dlls to install and package" FORCE)
 
         # see if there are some plug-ins we also want
@@ -385,6 +391,8 @@ macro    (pileTargetSubPiles)
 
         pileInclude (${pile_iter})
         pileCallByName("${pile_lower}Init" PILE_SHARED)
+        list(APPEND ${pile_target_upper}_INCLUDES ${${pile_upper}_INCLUDES})
+        list(APPEND ${pile_target_upper}_LIBRARIES ${${pile_upper}_LIBRARIES})
         list(APPEND ${pile_target_upper}_SOURCES ${${pile_upper}_SOURCES})
         list(APPEND ${pile_target_upper}_HEADERS ${${pile_upper}_HEADERS})
         list(APPEND ${pile_target_upper}_UIS ${${pile_upper}_UIS})
@@ -402,6 +410,9 @@ macro    (pileTargetSubPiles)
     endif()
     if (${pile_target_upper}_UIS)
         list (REMOVE_DUPLICATES ${pile_target_upper}_UIS)
+    endif()
+    if (${pile_target_upper}_LIBRARIES)
+        list (REMOVE_DUPLICATES ${pile_target_upper}_LIBRARIES)
     endif()
 
 endmacro()

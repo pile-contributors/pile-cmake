@@ -80,7 +80,7 @@ endmacro()
 # The module search path is amended to include a cmake directory at
 # in top source directory.
 #
-# For Windows builds a variable - PILE_PROJECT_DEP_LIBS - is initialized to
+# For Windows builds a variable - PILE_PROJECT_DEP_LIBRARIES - is initialized to
 # contain the name of the binary libraries that should be included in a package
 # produced by CPACK. The list is used by pileProjectEnd to find absolute
 # paths and install them in binary directory (use PILE_PROJECT_DEP_LIB_DIRS
@@ -183,7 +183,7 @@ macro    (pileProject
       set (${PROJECT_NAME_UPPER}_DEBUG OFF)
     endif ()
 
-    set (PILE_PROJECT_DEP_LIBS
+    set (PILE_PROJECT_DEP_LIBRARIES
          CACHE INTERNAL "The list of dlls to install and package" FORCE)
     set (PILE_PROJECT_DEP_LIB_DIRS
         CACHE INTERNAL "The list of directories to search for dlls" FORCE)
@@ -512,7 +512,7 @@ endmacro ()
 
 # Install and package project and dependencies.
 #
-# PILE_PROJECT_DEP_LIBS variable is expected to contain a list of names that
+# PILE_PROJECT_DEP_LIBRARIES variable is expected to contain a list of names that
 # will be searched and, if found, will be included in the list of binary files
 # (installed in bin directory). PILE_PROJECT_DEP_LIB_DIRS can be used to add
 # to the list of paths searched for these libraries.
@@ -520,17 +520,17 @@ endmacro ()
 macro    (pileProjectInstall)
 
     # Make sure internal dependencies are satisfied
-    foreach(dep_lib ${PILE_PROJECT_DEP_LIBS})
+    foreach(dep_lib ${PILE_PROJECT_DEP_LIBRARIES})
         unset(dep_lib_u)
         string(TOUPPER "${dep_lib}" dep_lib_u)
         if (dep_lib_u STREQUAL "MULTIMEDIA")
-            list(APPEND PILE_PROJECT_DEP_LIBS "Network")
+            list(APPEND PILE_PROJECT_DEP_LIBRARIES "Network")
         endif()
     endforeach()
 
     # dynamic libraries to install
-    list(REMOVE_DUPLICATES PILE_PROJECT_DEP_LIBS)
-    foreach(dep_lib ${PILE_PROJECT_DEP_LIBS})
+    list(REMOVE_DUPLICATES PILE_PROJECT_DEP_LIBRARIES)
+    foreach(dep_lib ${PILE_PROJECT_DEP_LIBRARIES})
         if (${PROJECT_NAME_UPPER}_DEBUG)
             set (dep_lib_names "${dep_lib}d" "${dep_lib}d.dll"
                                "${dep_lib}_debug" "${dep_lib}_debug.dll"
@@ -549,7 +549,7 @@ macro    (pileProjectInstall)
               PATH_SUFFIXES bin
               NO_DEFAULT_PATH)
         if (dep_lib_found)
-            list(APPEND PILE_PROJECT_DEP_LIBS_EXPANDED ${dep_lib_found})
+            list(APPEND PILE_PROJECT_DEP_LIBRARIES_EXPANDED ${dep_lib_found})
             pileProjectMessage("Found ${dep_lib} at ${dep_lib_found}")
         else()
             message(AUTHOR_WARNING "Library ${dep_lib} was not found and will not be installed and packaged")
@@ -561,10 +561,10 @@ macro    (pileProjectInstall)
     endforeach()
 
     # install this list of files in bin directory
-    if (PILE_PROJECT_DEP_LIBS_EXPANDED)
-        list(REMOVE_DUPLICATES PILE_PROJECT_DEP_LIBS_EXPANDED)
+    if (PILE_PROJECT_DEP_LIBRARIES_EXPANDED)
+        list(REMOVE_DUPLICATES PILE_PROJECT_DEP_LIBRARIES_EXPANDED)
         install(
-            FILES ${PILE_PROJECT_DEP_LIBS_EXPANDED}
+            FILES ${PILE_PROJECT_DEP_LIBRARIES_EXPANDED}
             DESTINATION bin
             COMPONENT applications)
     endif()
@@ -702,7 +702,7 @@ macro    (pileProjectInstall)
     endif()
 
     # all library files listed in the variable
-    # CMAKE_INSTALL_SYSTEM_RUNTIME_LIBS will be installed
+    # CMAKE_INSTALL_SYSTEM_RUNTIME_LIBRARIES will be installed
     INCLUDE(InstallRequiredSystemLibraries)
     INCLUDE(CPack)
 endmacro ()

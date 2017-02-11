@@ -531,33 +531,45 @@ macro    (pileProjectInstall)
     # dynamic libraries to install
     list(REMOVE_DUPLICATES PILE_PROJECT_DEP_LIBRARIES)
     foreach(dep_lib ${PILE_PROJECT_DEP_LIBRARIES})
-        if (${PROJECT_NAME_UPPER}_DEBUG)
-            set (dep_lib_names "${dep_lib}d" "${dep_lib}d.dll"
-                               "${dep_lib}_debug" "${dep_lib}_debug.dll"
-                               "Qt${dep_lib}d.dll" "Qt5${dep_lib}d.dll"
-                               "${dep_lib}.dll"
-                               "${dep_lib}"
-                               "Qt${dep_lib}.dll" "Qt5${dep_lib}.dll")
+        if(EXISTS "${dep_lib}")
+            set (_dep_lib_found "${dep_lib}")
+            # message(STATUS "dep_lib (passed with absolute path) = ${dep_lib}")
         else()
-            set (dep_lib_names "${dep_lib}" "${dep_lib}.dll"
-                               "Qt${dep_lib}" "Qt${dep_lib}.dll"
-                               "Qt5${dep_lib}" "Qt5${dep_lib}.dll")
+            # message(STATUS "dep_lib = ${dep_lib}")
+            if (${PROJECT_NAME_UPPER}_DEBUG)
+                set (dep_lib_names "${dep_lib}d" "${dep_lib}d.dll"
+                                   "${dep_lib}_debug" "${dep_lib}_debug.dll"
+                                   "Qt${dep_lib}d.dll" "Qt5${dep_lib}d.dll"
+                                   "${dep_lib}.dll"
+                                   "${dep_lib}"
+                                   "Qt${dep_lib}.dll" "Qt5${dep_lib}.dll")
+            else()
+                set (dep_lib_names "${dep_lib}" "${dep_lib}.dll"
+                                   "Qt${dep_lib}" "Qt${dep_lib}.dll"
+                                   "Qt5${dep_lib}" "Qt5${dep_lib}.dll")
+            endif()
+
+            unset(_dep_lib_found)
+            unset(_dep_lib_found CACHE)
+            find_file (_dep_lib_found
+                  NAMES ${dep_lib_names}
+                  PATHS ${PILE_PROJECT_DEP_LIB_DIRS}
+                  PATH_SUFFIXES bin
+                  NO_DEFAULT_PATH)
+            # message(STATUS "_dep_lib_found = ${_dep_lib_found}")
         endif()
-        find_file (dep_lib_found
-              NAMES ${dep_lib_names}
-              PATHS ${PILE_PROJECT_DEP_LIB_DIRS}
-              PATH_SUFFIXES bin
-              NO_DEFAULT_PATH)
-        if (dep_lib_found)
-            list(APPEND PILE_PROJECT_DEP_LIBRARIES_EXPANDED ${dep_lib_found})
-            pileProjectMessage("Found ${dep_lib} at ${dep_lib_found}")
+        # message(STATUS "_dep_lib_found = ${_dep_lib_found}")
+
+        if (_dep_lib_found)
+            list(APPEND PILE_PROJECT_DEP_LIBRARIES_EXPANDED ${_dep_lib_found})
+            pileProjectMessage("Found ${dep_lib} at ${_dep_lib_found}")
         else()
             message(AUTHOR_WARNING "Library ${dep_lib} was not found and will not be installed and packaged")
             pileProjectMessage("  - names: ${dep_lib_names}")
             pileProjectMessage("  - paths: ${PILE_PROJECT_DEP_LIB_DIRS}")
         endif()
         unset(dep_lib_names)
-        unset(dep_lib_found CACHE)
+        unset(_dep_lib_found CACHE)
     endforeach()
 
     # install this list of files in bin directory
@@ -568,6 +580,7 @@ macro    (pileProjectInstall)
             DESTINATION bin
             COMPONENT applications)
     endif()
+    # message(STATUS "PILE_PROJECT_DEP_LIBRARIES_EXPANDED = ${PILE_PROJECT_DEP_LIBRARIES_EXPANDED}")
 
     # the list of Qt plug-ins to install
     list(REMOVE_DUPLICATES PILE_PROJECT_QT_PLUGINS)
@@ -612,15 +625,15 @@ macro    (pileProjectInstall)
                                    "qt${dep_name}" "qt${dep_name}.dll")
             endif()
 
-            unset(dep_lib_found)
-            find_file (dep_lib_found
+            unset(_dep_lib_found)
+            find_file (_dep_lib_found
                   NAMES ${dep_lib_names}
                   HINTS "${PILE_QT_ROOT}/plugins/${dep_category}"
                   NO_DEFAULT_PATH)
-            if (dep_lib_found)
-                list(APPEND PILE_PROJECT_DEP_QT_PLUGINS_EXPANDED ${dep_lib_found})
-                pileProjectMessage("Found ${dep_lib_found} Qt plug-in")
-                set(dep_lib_all ${dep_lib_found})
+            if (_dep_lib_found)
+                list(APPEND PILE_PROJECT_DEP_QT_PLUGINS_EXPANDED ${_dep_lib_found})
+                pileProjectMessage("Found ${_dep_lib_found} Qt plug-in")
+                set(dep_lib_all ${_dep_lib_found})
             else()
                 message(AUTHOR_WARNING "Qt plug-in ${dep_lib} was not found and will not be installed and packaged")
                 pileProjectMessage("  - names: ${dep_lib_names}")
@@ -658,7 +671,7 @@ macro    (pileProjectInstall)
         unset(dep_name)
         unset(dep_lib_names)
         unset(dep_lib_all)
-        unset(dep_lib_found CACHE)
+        unset(_dep_lib_found CACHE)
     endforeach()
 
     # install this list of files in bin directory

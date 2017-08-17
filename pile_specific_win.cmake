@@ -127,27 +127,29 @@ endif()
 
 macro (pileSignBinary pile_sign_binary__target)
     if (SIGNTOOL_ENABLED)
-        add_custom_command(TARGET ${pile_sign_binary__target}
-                           POST_BUILD
-                           COMMAND
-                              "${SIGNTOOL_PROGRAM}" sign
-                                /t http://timestamp.digicert.com
-                                /f "${SIGNTOOL_CERTIFICATE}"
-                                /p ${SIGNTOOL_CERT_PASS}
-                                $<TARGET_FILE:${pile_sign_binary__target}>
-                           COMMENT "Target ${pile_sign_binary__target} is being signed")
+        if (NOT "$ENV{SIGNTOOL_ENABLED}" STREQUAL "DISABLED" )
+            add_custom_command(TARGET ${pile_sign_binary__target}
+                               POST_BUILD
+                               COMMAND
+                                  "${SIGNTOOL_PROGRAM}" sign
+                                    /t http://timestamp.digicert.com
+                                    /f "${SIGNTOOL_CERTIFICATE}"
+                                    /p ${SIGNTOOL_CERT_PASS}
+                                    $<TARGET_FILE:${pile_sign_binary__target}>
+                               COMMENT "Target ${pile_sign_binary__target} is being signed")
 
-        if (NOT SIGNED_PACKAGE_TARGET_DEFINED)
-            add_custom_target(signed_package
-                ${CMAKE_COMMAND} --build ${PROJECT_BINARY_DIR} --target package
-                COMMAND "${SIGNTOOL_PROGRAM}" sign
-                        /t http://timestamp.digicert.com
-                        /f "${SIGNTOOL_CERTIFICATE}"
-                        /p ${SIGNTOOL_CERT_PASS}
-                        "${PROJECT_BINARY_DIR}/${CPACK_PACKAGE_FILE_NAME}.exe"
-                WORKING_DIRECTORY "${PROJECT_BINARY_DIR}"
-                COMMENT "Creating a signed package")
-            set(SIGNED_PACKAGE_TARGET_DEFINED ON CACHE INTERNAL "create a target for signed packages")
+            if (NOT SIGNED_PACKAGE_TARGET_DEFINED)
+                add_custom_target(signed_package
+                    ${CMAKE_COMMAND} --build ${PROJECT_BINARY_DIR} --target package
+                    COMMAND "${SIGNTOOL_PROGRAM}" sign
+                            /t http://timestamp.digicert.com
+                            /f "${SIGNTOOL_CERTIFICATE}"
+                            /p ${SIGNTOOL_CERT_PASS}
+                            "${PROJECT_BINARY_DIR}/${CPACK_PACKAGE_FILE_NAME}.exe"
+                    WORKING_DIRECTORY "${PROJECT_BINARY_DIR}"
+                    COMMENT "Creating a signed package")
+                set(SIGNED_PACKAGE_TARGET_DEFINED ON CACHE INTERNAL "create a target for signed packages")
+            endif()
         endif()
     endif()
 endmacro()

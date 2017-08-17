@@ -476,13 +476,21 @@ macro (pileProjectAddVcRedist redist_name)
     string(TOUPPER "${redist_name}" redist_variable)
     string(REPLACE " " "_" redist_variable "${redist_variable}")
 
+	# message (STATUS "redist_name = ${redist_name}")
+	# message (STATUS "VCREDIST_INSTALLER_PATH = ${VCREDIST_INSTALLER_PATH}")
+	# message (STATUS "ENV VCREDIST_INSTALLER_PATH = $ENV{VCREDIST_INSTALLER_PATH}")
+	# message (STATUS "QTDIR = ${QTDIR}")
+	# message (STATUS "ENV QTDIR = $ENV{QTDIR}")
+	# message (STATUS "ENV GETTING_AAAANGRYYYY = $ENV{GETTING_AAAANGRYYYY}")
     find_program(${redist_variable}
-                 NAMES "${redist_name}"
+                 NAMES "${redist_name}" 
                  HINTS
                     "${VCREDIST_INSTALLER_PATH}"
+                    "$ENV{VCREDIST_INSTALLER_PATH}"
                     "$ENV{QTDIR}/../../vcredist"
-                 PATH_SUFFIXES BIN
+					"$ENV{GETTING_AAAANGRYYYY}"
                  DOC "Visual C Redistributable package ${redist_name}")
+	# message (STATUS "${redist_variable} = ${${redist_variable}}")
     if (NOT ${redist_variable})
         message(FATAL_ERROR "Unable to find ${redist_name}")
     endif()
@@ -658,9 +666,13 @@ macro    (pileProjectInstall)
 
                 pileProjectMessage ( "vcredist_msvc2013_x86")
                 pileProjectAddVcRedist("vcredist_msvc2013_x86")
+                pileProjectMessage ( "vcredist_msvc2015_x86")
+                pileProjectAddVcRedist("vcredist_msvc2015_x86")
                 if (TARGET_64BITS)
                    pileProjectMessage ( "vcredist_msvc2013_x64")
                    pileProjectAddVcRedist("vcredist_msvc2013_x64")
+                   pileProjectMessage ( "vcredist_msvc2015_x64")
+                   pileProjectAddVcRedist("vcredist_msvc2015_x64")
                 endif(TARGET_64BITS)
             endif(TARGET_COMPILER_MSVC)
 

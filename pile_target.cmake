@@ -210,6 +210,8 @@ macro    (pileEndTarget
         target_link_libraries( ${${pile_end_target__name_u}_TARGET}
             ${${pile_end_target__name_u}_LIBRARIES})
     endif()
+    # message(STATUS "${pile_end_target__name_u}_TARGET    = ${${pile_end_target__name_u}_TARGET}")
+    # message(STATUS "${pile_end_target__name_u}_LIBRARIES = ${${pile_end_target__name_u}_LIBRARIES}")
 
     # install dlls
     if (${pile_end_target__name_u}_DLLS)

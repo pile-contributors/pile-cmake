@@ -350,7 +350,7 @@ macro    (pileProjectCommonQt)
     if (PROJECT_NEEDS_GUI)
         list(APPEND qt_default_comp Widgets Gui)
     endif()
-    find_package(Qt5 REQUIERD COMPONENTS ${qt_default_comp})
+    find_package(Qt5 REQUIRED COMPONENTS ${qt_default_comp})
     unset(qt_default_comp)
 
     # Automatically link Qt executables to qtmain target on Windows
